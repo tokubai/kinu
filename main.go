@@ -8,7 +8,7 @@ import (
 	"errors"
 	"encoding/json"
 	"github.com/TakatoshiMaeda/kinu/logger"
-	_ "net/http/pprof"
+	"net/http/pprof"
 )
 
 var ErrInvalidImageExt = errors.New("supported image type is only jpg/jpeg")
@@ -31,6 +31,11 @@ func main() {
 	router.POST("/upload", UploadImageHandler)
 	router.POST("/sandbox", UploadImageToSandboxHandler)
 	router.POST("/sandbox/apply", ApplyFromSandboxHandler)
+
+	router.GET("/debug/pprof/", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) { pprof.Index(w, r) })
+	router.GET("/debug/pprof/cmdline", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) { pprof.Cmdline(w, r) })
+	router.GET("/debug/pprof/profile", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) { pprof.Profile(w, r) })
+	router.GET("/debug/pprof/symbol", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) { pprof.Symbol(w, r) })
 
 	logger.Debug("Started Kinu.")
 	logger.Fatal(http.ListenAndServe(":8080", router))
