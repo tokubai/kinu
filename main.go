@@ -8,6 +8,7 @@ import (
 	"errors"
 	"encoding/json"
 	"github.com/TakatoshiMaeda/kinu/logger"
+	_ "net/http/pprof"
 )
 
 var ErrInvalidImageExt = errors.New("supported image type is only jpg/jpeg")
