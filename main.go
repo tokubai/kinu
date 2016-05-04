@@ -13,7 +13,10 @@ import (
 	"runtime"
 )
 
-var ErrInvalidImageExt = errors.New("supported image type is only jpg/jpeg")
+var (
+	ErrInvalidImageExt = errors.New("supported image type is only jpg/jpeg")
+	listenPort = "80"
+)
 
 type ErrInvalidRequest struct {
 	error
@@ -22,12 +25,17 @@ type ErrInvalidRequest struct {
 
 func (e *ErrInvalidRequest) Error() string { return e.Message }
 
+func init() {
+	if len(os.Getenv("KINU_PORT")) != 0 {
+		listenPort = os.Getenv("KINU_PORT")
+	}
+}
+
 func main() {
-	logger.Debug("Kinu Booting...")
+	runtime.GOMAXPROCS(runtime.NumCPU())
+
 	engine.Initialize()
 	defer engine.Finalize()
-
-	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	router := httprouter.New()
 
@@ -44,8 +52,7 @@ func main() {
 	router.POST("/sandbox", UploadImageToSandboxHandler)
 	router.POST("/sandbox/attach", ApplyFromSandboxHandler)
 
-	logger.Debug("Started Kinu.")
-	logger.Fatal(http.ListenAndServe(":8080", router))
+	logger.Fatal(http.ListenAndServe(":" + listenPort, router))
 }
 
 func SetContentType(w http.ResponseWriter, filename string) error {
