@@ -102,9 +102,9 @@ func (s *FileStorage) Put(key string, imageFile io.ReadSeeker) error {
 }
 
 func (s *FileStorage) List(key string) ([]StorageItem, error) {
-	key = s.BuildKey(key)
+	path := s.BuildKey(key)
 
-	fileInfos, err := ioutil.ReadDir(key)
+	fileInfos, err := ioutil.ReadDir(path)
 	if err != nil {
 		return nil, logger.ErrorDebug(err)
 	}
@@ -112,9 +112,11 @@ func (s *FileStorage) List(key string) ([]StorageItem, error) {
 	items := make([]StorageItem, 0)
 	for _, info := range fileInfos {
 		logger.WithFields(logrus.Fields{
-			"key": info.Name(),
+			"path": path,
+			"name": info.Name(),
+			"key": key,
 		}).Debug("found object")
-		item := FileStorageItem{Name: info.Name()}
+		item := FileStorageItem{Name: key + "/" + info.Name()}
 		items = append(items, &item)
 	}
 
@@ -130,7 +132,19 @@ func (s *FileStorage) Move(from string, to string) (error) {
 		"to": toKey,
 	}).Debug("move file object start")
 
-	err := os.Rename(fromKey, toKey)
+	directory := filepath.Dir(fromKey)
+	err := os.MkdirAll(directory, 0755)
+	if err != nil {
+		return logger.ErrorDebug(err)
+	}
+
+	directory = filepath.Dir(toKey)
+	err = os.MkdirAll(directory, 0755)
+	if err != nil {
+		return logger.ErrorDebug(err)
+	}
+
+	err = os.Rename(fromKey, toKey)
 	if err != nil {
 		return logger.ErrorDebug(err)
 	}
