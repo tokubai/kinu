@@ -1,17 +1,14 @@
 package main
 
 import (
-
 	"net/http"
 	"github.com/julienschmidt/httprouter"
 	"github.com/TakatoshiMaeda/kinu/resizer"
 	"github.com/TakatoshiMaeda/kinu/logger"
 	"github.com/Sirupsen/logrus"
-	"errors"
 	"time"
+	"github.com/TakatoshiMaeda/kinu/storage"
 )
-
-var ErrImageNotFound = errors.New("image not found.")
 
 func GetImageHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	err := SetContentType(w, ps.ByName("filename"))
@@ -37,7 +34,7 @@ func GetImageHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 	imageFetchStartTime := time.Now()
 	originalImage, err := imageGetRequest.FetchImage()
 	if err != nil {
-		if err == ErrImageNotFound {
+		if err == storage.ErrImageNotFound {
 			RespondNotFound(w)
 		} else {
 			RespondInternalServerError(w, err)

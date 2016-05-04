@@ -51,6 +51,11 @@ func (s *FileStorage) BuildKey(key string) string {
 func (s *FileStorage) Fetch(key string) ([]byte, error) {
 	key = s.BuildKey(key)
 
+	_, err := os.Stat(key)
+	if err != nil {
+		return nil, ErrImageNotFound
+	}
+
 	fp, err := os.Open(key)
 	if err != nil {
 		return nil, logger.ErrorDebug(err)
