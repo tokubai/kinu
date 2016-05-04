@@ -3,6 +3,7 @@ import (
 	"io"
 	"errors"
 	"os"
+	"regexp"
 )
 
 type Storage interface {
@@ -26,6 +27,7 @@ type StorageItem interface {
 
 var (
 	ErrImageNotFound = errors.New("not found requested image")
+	sizeHasImageFileNameRegexp = regexp.MustCompile(`(.*)+.([0-9]+|original)+.(jpeg|jpg|png|gif)+`)
 )
 
 type ErrInvalidStorageOption struct {

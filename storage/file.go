@@ -178,7 +178,12 @@ func (s *FileStorageItem) Extension() string {
 	return path[len(path) - 1]
 }
 
+// KeyFormat: :image_type/:id/:id.:size.:format or :image_type/:id/:id.:format
 func (s *FileStorageItem) ImageSize() string {
-	path := strings.Split(s.Name, ".")
-	return path[len(path) - 2]
+	if sizeHasImageFileNameRegexp.MatchString(s.Name) {
+		path := strings.Split(s.Name, ".")
+		return path[len(path) - 2]
+	} else {
+		return "1000"
+	}
 }

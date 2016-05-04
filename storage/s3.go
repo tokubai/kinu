@@ -223,7 +223,12 @@ func (s *S3StorageItem) Extension() string {
 	return path[len(path) - 1]
 }
 
+// KeyFormat: :image_type/:id/:id.:size.:format or :image_type/:id/:id.:format
 func (s *S3StorageItem) ImageSize() string {
-	path := strings.Split(*s.Object.Key, ".")
-	return path[len(path) - 2]
+	if sizeHasImageFileNameRegexp.MatchString(s.Key()) {
+		path := strings.Split(s.Key(), ".")
+		return path[len(path) - 2]
+	} else {
+		return ""
+	}
 }
