@@ -15,9 +15,9 @@ type ErrImageUpload struct {
 }
 
 func (e *ErrImageUpload) Error() string {
-	messages := "Image upload error.\ncause "
+	messages := "Image upload error. cause, "
 	for i, err := range e.Errors {
-		messages = messages + strconv.Itoa(i) + ". " + err.Error() + "\n"
+		messages = messages + strconv.Itoa(i + 1) + ". " + err.Error() + "  "
 	}
 	return messages
 }
@@ -53,35 +53,32 @@ func UploadImage(imageType string, imageId string, imageFile io.ReadSeeker) erro
 		uploaders = append(uploaders, uploader)
 	}
 
-	// FIXME: ErrorHandling
 	wg := sync.WaitGroup{}
-	// errs := make(chan error)
+	errs := make(chan error, len(uploaders))
 	for _, uploader := range uploaders {
 		wg.Add(1)
-		//go func(u *Uploader, errs chan error) {
-		go func(u *Uploader) {
+		go func(u *Uploader, errs chan error) {
 			defer wg.Done()
-			// errs <- u.Exec()
-			u.Exec()
-		//}(uploader, errs)
-		}(uploader)
+			errs <- u.Exec()
+		}(uploader, errs)
 	}
 	wg.Wait()
 
-	// close(errs)
+	close(errs)
 
-	// errors := make([]error, 0)
-	// for err := range errs {
-	// 	if err != nil {
-	// 		errors = append(errors, err)
-	// 	}
-	// }
+	errors := make([]error, 0)
+	for err := range errs {
+		if err != nil {
+			errors = append(errors, err)
+		}
+	}
 
-	// if len(errors) == 0 {
-	// 	return nil
-	// } else {
-	// 	return &ErrImageUpload{Errors: errors}
-	// }
+	if len(errors) == 0 {
+		return nil
+	} else {
+		return &ErrImageUpload{Errors: errors}
+	}
+
 	return nil
 }
 
