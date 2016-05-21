@@ -1,18 +1,18 @@
 package main
 
 import (
-	"github.com/julienschmidt/httprouter"
+	"github.com/Sirupsen/logrus"
+	"github.com/TakatoshiMaeda/kinu/logger"
 	"github.com/TakatoshiMaeda/kinu/resizer"
 	"github.com/TakatoshiMaeda/kinu/storage"
-	"github.com/TakatoshiMaeda/kinu/logger"
-	"github.com/Sirupsen/logrus"
+	"github.com/julienschmidt/httprouter"
 )
 
 type ImageGetRequest struct {
 	imageMetadata *ImageMetadata
 
 	extension string
-	geometry *Geometry
+	geometry  *Geometry
 }
 
 func NewImageGetRequest(ps httprouter.Params) (*ImageGetRequest, error) {
@@ -42,10 +42,10 @@ func NewImageGetRequest(ps httprouter.Params) (*ImageGetRequest, error) {
 	}
 
 	logger.WithFields(logrus.Fields{
-		"geometry": geometry.ToString(),
+		"geometry":   geometry.ToString(),
 		"image_type": imageType,
-		"image_id": id,
-		"extension": ext,
+		"image_id":   id,
+		"extension":  ext,
 	}).Debug("parse success image get request.")
 
 	return &ImageGetRequest{imageMetadata: NewImageMetadata(imageType, id), geometry: geometry, extension: ext}, nil
@@ -63,6 +63,6 @@ func (r *ImageGetRequest) NeedsOriginalImage() bool {
 	return r.geometry.NeedsOriginalImage
 }
 
-func (r *ImageGetRequest) ToResizeOption() (*resizer.ResizeOption) {
+func (r *ImageGetRequest) ToResizeOption() *resizer.ResizeOption {
 	return r.geometry.ToResizeOption()
 }

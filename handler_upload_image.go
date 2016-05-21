@@ -1,10 +1,10 @@
 package main
 
 import (
-	"net/http"
-	"github.com/julienschmidt/httprouter"
-	"github.com/TakatoshiMaeda/kinu/logger"
 	"github.com/Sirupsen/logrus"
+	"github.com/TakatoshiMaeda/kinu/logger"
+	"github.com/julienschmidt/httprouter"
+	"net/http"
 )
 
 func UploadImageHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -42,7 +42,7 @@ func UploadImageHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Pa
 	RespondImageUploadSuccessJson(w, imageType, imageId)
 
 	logger.WithFields(logrus.Fields{
-		"path": r.URL.Path,
+		"path":   r.URL.Path,
 		"params": r.URL.Query(),
 		"method": r.Method,
 	}).Info("success")

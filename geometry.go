@@ -1,10 +1,10 @@
 package main
 
 import (
+	"fmt"
+	"github.com/TakatoshiMaeda/kinu/resizer"
 	"strconv"
 	"strings"
-	"github.com/TakatoshiMaeda/kinu/resizer"
-	"fmt"
 )
 
 const DEFAULT_QUALITY = 80
@@ -12,10 +12,10 @@ const MAX_QUALITY = 100
 const MIN_QUALITY = 0
 
 type Geometry struct {
-	Width      int `json:"width"`
-	Height     int `json:"height"`
-	Quality    int `json:"quality"`
-	NeedsAutoCrop bool `json:"needs_auto_crop"`
+	Width              int  `json:"width"`
+	Height             int  `json:"height"`
+	Quality            int  `json:"quality"`
+	NeedsAutoCrop      bool `json:"needs_auto_crop"`
 	NeedsOriginalImage bool `json:"needs_original_image"`
 }
 
@@ -98,9 +98,9 @@ func (g *Geometry) ResizeMode() int {
 
 func (g *Geometry) ToResizeOption() (resizeOption *resizer.ResizeOption) {
 	return &resizer.ResizeOption{
-		Width: g.Width,
-		Height: g.Height,
-		Quality: g.Quality,
+		Width:         g.Width,
+		Height:        g.Height,
+		Quality:       g.Quality,
 		NeedsAutoCrop: g.NeedsAutoCrop,
 	}
 }

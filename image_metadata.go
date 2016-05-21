@@ -1,17 +1,18 @@
 package main
+
 import (
-	"strings"
-	"path/filepath"
 	"fmt"
+	"path/filepath"
+	"strings"
 )
 
 type ImageMetadata struct {
 	ImageType string
-	Id string
+	Id        string
 }
 
 var (
-	validExtensions = []string{ "jpg", "jpeg" }
+	validExtensions = []string{"jpg", "jpeg"}
 )
 
 func ExtractExtension(filename string) string {
@@ -31,10 +32,10 @@ func IsValidImageExt(ext string) bool {
 	return false
 }
 
-func NewImageMetadata(imageType string, id string) (*ImageMetadata) {
+func NewImageMetadata(imageType string, id string) *ImageMetadata {
 	return &ImageMetadata{
 		ImageType: imageType,
-		Id: id,
+		Id:        id,
 	}
 }
 

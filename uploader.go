@@ -1,13 +1,14 @@
 package main
+
 import (
+	"github.com/TakatoshiMaeda/kinu/logger"
+	"github.com/TakatoshiMaeda/kinu/resizer"
+	"github.com/TakatoshiMaeda/kinu/storage"
 	"io"
 	"io/ioutil"
-	"github.com/TakatoshiMaeda/kinu/resizer"
-	"strconv"
 	"net/http"
-	"github.com/TakatoshiMaeda/kinu/storage"
+	"strconv"
 	"sync"
-	"github.com/TakatoshiMaeda/kinu/logger"
 )
 
 type ErrImageUpload struct {
@@ -18,13 +19,13 @@ type ErrImageUpload struct {
 func (e *ErrImageUpload) Error() string {
 	messages := "Image upload error. cause, "
 	for i, err := range e.Errors {
-		messages = messages + strconv.Itoa(i + 1) + ". " + err.Error() + "  "
+		messages = messages + strconv.Itoa(i+1) + ". " + err.Error() + "  "
 	}
 	return messages
 }
 
 var (
-	imageUploadSizes = []string{ "original", "1000", "2000", "3000" }
+	imageUploadSizes = []string{"original", "1000", "2000", "3000"}
 )
 
 func UploadImage(imageType string, imageId string, imageFile io.ReadSeeker) error {
@@ -49,14 +50,14 @@ func UploadImage(imageType string, imageId string, imageFile io.ReadSeeker) erro
 	for _, size := range imageUploadSizes {
 		uploader := &ImageUploader{
 			ImageMetadata: imageMetadata,
-			ImageBlob: imageData,
-			UploadSize: size,
+			ImageBlob:     imageData,
+			UploadSize:    size,
 		}
 		uploaders = append(uploaders, uploader)
 	}
 
 	uploader := &FileTypeTextUploader{
-		Filetype: contentType,
+		Filetype:      contentType,
 		ImageMetadata: imageMetadata,
 	}
 	uploaders = append(uploaders, uploader)
@@ -99,8 +100,8 @@ type ImageUploader struct {
 	Uploader
 
 	ImageMetadata *ImageMetadata
-	ImageBlob []byte
-	UploadSize string
+	ImageBlob     []byte
+	UploadSize    string
 }
 
 func (u *ImageUploader) NeedsResize() bool {
@@ -144,7 +145,7 @@ func (u *ImageUploader) Exec() error {
 type FileTypeTextUploader struct {
 	Uploader
 
-	Filetype string
+	Filetype      string
 	ImageMetadata *ImageMetadata
 }
 
@@ -154,5 +155,5 @@ func (u *FileTypeTextUploader) Exec() error {
 		return logger.ErrorDebug(err)
 	}
 
-	return storage.PutFromBlob(u.ImageMetadata.BasePath() + "/filetype." + u.Filetype, []byte{})
+	return storage.PutFromBlob(u.ImageMetadata.BasePath()+"/filetype."+u.Filetype, []byte{})
 }

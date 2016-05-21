@@ -15,7 +15,7 @@ import (
 
 var (
 	ErrInvalidImageExt = errors.New("supported image type is only jpg/jpeg")
-	listenPort = "80"
+	listenPort         = "80"
 )
 
 type ErrInvalidRequest struct {
@@ -52,7 +52,7 @@ func main() {
 	router.POST("/sandbox", UploadImageToSandboxHandler)
 	router.POST("/sandbox/attach", ApplyFromSandboxHandler)
 
-	logger.Fatal(http.ListenAndServe(":" + listenPort, router))
+	logger.Fatal(http.ListenAndServe(":"+listenPort, router))
 }
 
 func SetContentType(w http.ResponseWriter, filename string) error {

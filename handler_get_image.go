@@ -1,13 +1,13 @@
 package main
 
 import (
-	"net/http"
-	"github.com/julienschmidt/httprouter"
-	"github.com/TakatoshiMaeda/kinu/resizer"
-	"github.com/TakatoshiMaeda/kinu/logger"
 	"github.com/Sirupsen/logrus"
-	"time"
+	"github.com/TakatoshiMaeda/kinu/logger"
+	"github.com/TakatoshiMaeda/kinu/resizer"
 	"github.com/TakatoshiMaeda/kinu/storage"
+	"github.com/julienschmidt/httprouter"
+	"net/http"
+	"time"
 )
 
 func GetImageHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -59,7 +59,7 @@ func GetImageHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 	RespondImage(w, resizedImage)
 
 	logger.WithFields(logrus.Fields{
-		"path": r.URL.Path,
+		"path":   r.URL.Path,
 		"params": r.URL.Query(),
 		"method": r.Method,
 	}).Info("success")
