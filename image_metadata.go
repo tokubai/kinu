@@ -47,16 +47,12 @@ func (i *ImageMetadata) FileOriginPath() string {
 	return i.FilePath("origin")
 }
 
-// images/1/1.kinu -> 1000x1000 default middle image
+// images/1/1.1000.kinu -> 1000x1000 default middle image
 // images/1/1.2000.kinu -> 2000x2000 larger middle image
 // images/1/1.3000.kinu -> 3000x3000 more larger middle image
 // images/1/1.original.kinu -> original image
 func (i *ImageMetadata) FilePath(size string) string {
-	if size == "1000" || size == "" {
-		return fmt.Sprintf("%s/%s.kinu", i.BasePath(), i.Id)
-	} else {
-		return fmt.Sprintf("%s/%s.%s.kinu", i.BasePath(), i.Id, size)
-	}
+	return fmt.Sprintf("%s/%s.%s.kinu", i.BasePath(), i.Id, size)
 }
 
 func (i *ImageMetadata) BasePath() string {
