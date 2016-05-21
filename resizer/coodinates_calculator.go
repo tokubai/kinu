@@ -1,4 +1,5 @@
 package resizer
+
 import "math"
 
 type CoodinatesCalculator struct {
@@ -17,9 +18,9 @@ func (e *ErrInvalidOption) Error() string { return e.Message }
 
 func NewCoodinatesCalculator(option *ResizeOption) (*CoodinatesCalculator, error) {
 	if option.Width <= 0 && option.Height <= 0 {
-		return nil, &ErrInvalidOption{Message: "option must specify Width or Height" }
+		return nil, &ErrInvalidOption{Message: "option must specify Width or Height"}
 	}
-	return &CoodinatesCalculator{ Width: option.Width, Height: option.Height }, nil
+	return &CoodinatesCalculator{Width: option.Width, Height: option.Height}, nil
 }
 
 func (c *CoodinatesCalculator) SetImageSize(width int, height int) {
@@ -37,7 +38,7 @@ func (c *CoodinatesCalculator) Resize() (coodinates *Coodinates) {
 		coodinates.ResizeWidth = int(float64(c.ImageWidth) * (float64(c.Height) / float64(c.ImageHeight)))
 		coodinates.ResizeHeight = c.Height
 	default: // Fixed Width and Height
-		scaleRatio := math.Min(float64(c.Height) / float64(c.ImageHeight), float64(c.Width) / float64(c.ImageWidth))
+		scaleRatio := math.Min(float64(c.Height)/float64(c.ImageHeight), float64(c.Width)/float64(c.ImageWidth))
 		coodinates.ResizeWidth = int(float64(c.ImageWidth) * scaleRatio)
 		coodinates.ResizeHeight = int(float64(c.ImageHeight) * scaleRatio)
 	}
@@ -53,11 +54,11 @@ func (c *CoodinatesCalculator) AutoCrop() (coodinates *Coodinates) {
 	scaleRatio := math.Max(heightScaleRatio, widthScaleRatio)
 
 	if heightScaleRatio > widthScaleRatio {
-		coodinates.WidthOffset = int((float64(c.ImageWidth) * scaleRatio - float64(c.Width)) / float64(2.0))
+		coodinates.WidthOffset = int((float64(c.ImageWidth)*scaleRatio - float64(c.Width)) / float64(2.0))
 		coodinates.ResizeHeight = c.Height
 		coodinates.ResizeWidth = int(float64(c.ImageWidth) * scaleRatio)
 	} else {
-		coodinates.HeightOffset = int((float64(c.ImageHeight) * scaleRatio - float64(c.Height)) / float64(2.0))
+		coodinates.HeightOffset = int((float64(c.ImageHeight)*scaleRatio - float64(c.Height)) / float64(2.0))
 		coodinates.ResizeHeight = int(float64(c.ImageHeight) * scaleRatio)
 		coodinates.ResizeWidth = c.Width
 	}
@@ -67,7 +68,7 @@ func (c *CoodinatesCalculator) AutoCrop() (coodinates *Coodinates) {
 
 type Coodinates struct {
 	ResizeWidth, ResizeHeight int
-	CropWidth, CropHeight int
+	CropWidth, CropHeight     int
 	WidthOffset, HeightOffset int
 }
 

@@ -1,9 +1,9 @@
 package engine
-import (
 
-	"os"
+import (
 	"errors"
 	"gopkg.in/gographics/imagick.v2/imagick"
+	"os"
 )
 
 type ResizeEngine interface {
@@ -21,9 +21,9 @@ type ResizeEngine interface {
 }
 
 var (
-	AvailableEngines = []string{ "ImageMagick" }
+	AvailableEngines       = []string{"ImageMagick"}
 	ErrUnknownResizeEngine = errors.New("specify unknown resize engine.")
-	selectedEngineType string
+	selectedEngineType     string
 )
 
 func init() {

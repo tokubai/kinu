@@ -1,13 +1,13 @@
 package logger
 
 import (
+	"fmt"
 	"github.com/Sirupsen/logrus"
 	ltsv "github.com/doloopwhile/logrusltsv"
 	"os"
 	"runtime"
 	"strconv"
 	"time"
-	"fmt"
 )
 
 func init() {
@@ -75,6 +75,6 @@ func ErrorDebug(err error) error {
 
 func TrackResult(tag string, startTime time.Time) {
 	WithFields(logrus.Fields{
-		"process_time": strconv.Itoa(int(time.Now().Sub(startTime) / time.Millisecond)) + "ms",
+		"process_time": strconv.Itoa(int(time.Now().Sub(startTime)/time.Millisecond)) + "ms",
 	}).Debug(fmt.Sprintf("%s process time", tag))
 }

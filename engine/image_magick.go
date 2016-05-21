@@ -1,15 +1,16 @@
 package engine
+
 import (
-	"gopkg.in/gographics/imagick.v2/imagick"
-	"github.com/TakatoshiMaeda/kinu/logger"
 	"fmt"
+	"github.com/TakatoshiMaeda/kinu/logger"
+	"gopkg.in/gographics/imagick.v2/imagick"
 )
 
 type ImageMagickEngine struct {
 	ResizeEngine
 
-	mw *imagick.MagickWand
-	opened bool
+	mw                *imagick.MagickWand
+	opened            bool
 	originalImageBlob []byte
 
 	height, width int

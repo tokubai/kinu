@@ -1,14 +1,15 @@
 package resizer
+
 import (
 	"github.com/TakatoshiMaeda/kinu/engine"
 	"github.com/TakatoshiMaeda/kinu/logger"
 )
 
 type ResizeOption struct {
-	Width     int
-	Height    int
+	Width         int
+	Height        int
 	NeedsAutoCrop bool
-	Quality   int
+	Quality       int
 }
 
 const (

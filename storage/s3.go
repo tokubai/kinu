@@ -1,16 +1,16 @@
 package storage
 
 import (
+	"github.com/Sirupsen/logrus"
+	"github.com/TakatoshiMaeda/kinu/logger"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	awsSession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"net/http"
-	"io/ioutil"
 	"io"
+	"io/ioutil"
+	"net/http"
 	"os"
-	"github.com/TakatoshiMaeda/kinu/logger"
-	"github.com/Sirupsen/logrus"
 	"strings"
 )
 
@@ -19,8 +19,8 @@ type S3Storage struct {
 
 	client *s3.S3
 
-	region string
-	bucket string
+	region         string
+	bucket         string
 	bucketBasePath string
 }
 
@@ -42,25 +42,25 @@ func openS3Storage() (Storage, error) {
 func (s *S3Storage) Open() error {
 	s.region = os.Getenv("KINU_S3_REGION")
 	if len(s.region) == 0 {
-		return &ErrInvalidStorageOption{ Message: "KINU_S3_REGION system env is required" }
+		return &ErrInvalidStorageOption{Message: "KINU_S3_REGION system env is required"}
 	}
 
 	s.bucket = os.Getenv("KINU_S3_BUCKET")
 	if len(s.bucket) == 0 {
-		return &ErrInvalidStorageOption{ Message: "KINU_S3_BUCKET system env is required" }
+		return &ErrInvalidStorageOption{Message: "KINU_S3_BUCKET system env is required"}
 	}
 
 	s.bucketBasePath = os.Getenv("KINU_S3_BUCKET_BASE_PATH")
 	if len(s.bucketBasePath) == 0 {
-		return &ErrInvalidStorageOption{ Message: "KINU_S3_BUCKET_BASE_PATH system env is required" }
+		return &ErrInvalidStorageOption{Message: "KINU_S3_BUCKET_BASE_PATH system env is required"}
 	}
 
 	s.client = s3.New(awsSession.New(), &aws.Config{Region: aws.String(s.region)})
 
 	logger.WithFields(logrus.Fields{
-		"bucket": s.bucket,
+		"bucket":    s.bucket,
 		"base_path": s.bucketBasePath,
-		"region": s.region,
+		"region":    s.region,
 	}).Debug("open s3 storage")
 
 	return nil
@@ -80,7 +80,7 @@ func (s *S3Storage) Fetch(key string) ([]byte, error) {
 
 	logger.WithFields(logrus.Fields{
 		"bucket": s.bucket,
-		"key": key,
+		"key":    key,
 	}).Debug("start get object from s3")
 
 	resp, err := s.client.GetObject(params)
@@ -93,7 +93,7 @@ func (s *S3Storage) Fetch(key string) ([]byte, error) {
 
 	logger.WithFields(logrus.Fields{
 		"bucket": s.bucket,
-		"key": key,
+		"key":    key,
 	}).Debug("found object from s3")
 
 	defer resp.Body.Close()
@@ -130,7 +130,7 @@ func (s *S3Storage) Put(key string, imageFile io.ReadSeeker) error {
 
 	logger.WithFields(logrus.Fields{
 		"bucket": s.bucket,
-		"key": s.BuildKey(key),
+		"key":    s.BuildKey(key),
 	}).Debug("put to s3")
 
 	if err != nil {
@@ -152,9 +152,8 @@ func (s *S3Storage) List(key string) ([]StorageItem, error) {
 
 	logger.WithFields(logrus.Fields{
 		"bucket": s.bucket,
-		"key": s.BuildKey(key),
+		"key":    s.BuildKey(key),
 	}).Debug("start list object from s3")
-
 
 	items := make([]StorageItem, 0)
 	for _, object := range resp.Contents {
@@ -168,19 +167,19 @@ func (s *S3Storage) List(key string) ([]StorageItem, error) {
 	return items, nil
 }
 
-func (s *S3Storage) Move(from string, to string) (error) {
+func (s *S3Storage) Move(from string, to string) error {
 	fromKey := s.bucket + "/" + from
-	toKey   := s.bucketBasePath + "/" + to
+	toKey := s.bucketBasePath + "/" + to
 
 	_, err := s.client.CopyObject(&s3.CopyObjectInput{
-		Bucket: aws.String(s.bucket),
+		Bucket:     aws.String(s.bucket),
 		CopySource: aws.String(fromKey),
-		Key: aws.String(toKey),
+		Key:        aws.String(toKey),
 	})
 
 	logger.WithFields(logrus.Fields{
 		"from": fromKey,
-		"to": toKey,
+		"to":   toKey,
 	}).Debug("move s3 object start")
 
 	if reqerr, ok := err.(awserr.RequestFailure); ok && reqerr.StatusCode() == http.StatusNotFound {
@@ -190,7 +189,7 @@ func (s *S3Storage) Move(from string, to string) (error) {
 	}
 	_, err = s.client.DeleteObject(&s3.DeleteObjectInput{
 		Bucket: aws.String(s.bucket),
-		Key: aws.String(fromKey),
+		Key:    aws.String(fromKey),
 	})
 
 	if reqerr, ok := err.(awserr.RequestFailure); ok && reqerr.StatusCode() == http.StatusNotFound {
@@ -220,14 +219,14 @@ func (s *S3StorageItem) Key() string {
 
 func (s *S3StorageItem) Extension() string {
 	path := strings.Split(*s.Object.Key, ".")
-	return path[len(path) - 1]
+	return path[len(path)-1]
 }
 
 // KeyFormat: :image_type/:id/:id.:size.:format or :image_type/:id/:id.:format
 func (s *S3StorageItem) ImageSize() string {
 	if sizeHasImageFileNameRegexp.MatchString(s.Key()) {
 		path := strings.Split(s.Key(), ".")
-		return path[len(path) - 2]
+		return path[len(path)-2]
 	} else {
 		return ""
 	}

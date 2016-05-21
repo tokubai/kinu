@@ -1,7 +1,8 @@
 package storage
+
 import (
-	"io"
 	"errors"
+	"io"
 	"os"
 	"regexp"
 )
@@ -26,7 +27,7 @@ type StorageItem interface {
 }
 
 var (
-	ErrImageNotFound = errors.New("not found requested image")
+	ErrImageNotFound           = errors.New("not found requested image")
 	sizeHasImageFileNameRegexp = regexp.MustCompile(`(.*)+.([0-9]+|original)+.(jpeg|jpg|png|gif)+`)
 )
 
@@ -38,9 +39,9 @@ type ErrInvalidStorageOption struct {
 func (e *ErrInvalidStorageOption) Error() string { return e.Message }
 
 var (
-	AvailableStorageTypes = []string{ "S3", "File" }
-	ErrUnknownStorage = errors.New("specify unknown storage.")
-	selectedStorageType string
+	AvailableStorageTypes = []string{"S3", "File"}
+	ErrUnknownStorage     = errors.New("specify unknown storage.")
+	selectedStorageType   string
 )
 
 func init() {

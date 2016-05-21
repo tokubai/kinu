@@ -1,13 +1,13 @@
 package storage
 
 import (
-	"io/ioutil"
-	"io"
-	"os"
-	"github.com/TakatoshiMaeda/kinu/logger"
 	"github.com/Sirupsen/logrus"
-	"strings"
+	"github.com/TakatoshiMaeda/kinu/logger"
+	"io"
+	"io/ioutil"
+	"os"
 	"path/filepath"
+	"strings"
 )
 
 type FileStorage struct {
@@ -34,7 +34,7 @@ func openFileStorage() (Storage, error) {
 func (s *FileStorage) Open() error {
 	s.baseDirectory = os.Getenv("KINU_FILE_DIRECTORY")
 	if len(s.baseDirectory) == 0 {
-		return &ErrInvalidStorageOption{ Message: "KINU_FILE_DIRECTORY system env is required" }
+		return &ErrInvalidStorageOption{Message: "KINU_FILE_DIRECTORY system env is required"}
 	}
 
 	logger.WithFields(logrus.Fields{
@@ -92,7 +92,7 @@ func (s *FileStorage) PutFromBlob(key string, image []byte) error {
 
 	logger.WithFields(logrus.Fields{
 		"directory": directory,
-		"key": key,
+		"key":       key,
 	}).Debug("put to file")
 
 	return nil
@@ -119,7 +119,7 @@ func (s *FileStorage) List(key string) ([]StorageItem, error) {
 		logger.WithFields(logrus.Fields{
 			"path": path,
 			"name": info.Name(),
-			"key": key,
+			"key":  key,
 		}).Debug("found object")
 		item := FileStorageItem{Name: key + "/" + info.Name()}
 		items = append(items, &item)
@@ -128,13 +128,13 @@ func (s *FileStorage) List(key string) ([]StorageItem, error) {
 	return items, nil
 }
 
-func (s *FileStorage) Move(from string, to string) (error) {
+func (s *FileStorage) Move(from string, to string) error {
 	fromKey := s.BuildKey(from)
-	toKey   := s.BuildKey(to)
+	toKey := s.BuildKey(to)
 
 	logger.WithFields(logrus.Fields{
 		"from": fromKey,
-		"to": toKey,
+		"to":   toKey,
 	}).Debug("move file object start")
 
 	directory := filepath.Dir(fromKey)
@@ -175,14 +175,14 @@ func (s *FileStorageItem) Key() string {
 
 func (s *FileStorageItem) Extension() string {
 	path := strings.Split(s.Name, ".")
-	return path[len(path) - 1]
+	return path[len(path)-1]
 }
 
 // KeyFormat: :image_type/:id/:id.:size.:format or :image_type/:id/:id.:format
 func (s *FileStorageItem) ImageSize() string {
 	if sizeHasImageFileNameRegexp.MatchString(s.Name) {
 		path := strings.Split(s.Name, ".")
-		return path[len(path) - 2]
+		return path[len(path)-2]
 	} else {
 		return "1000"
 	}
