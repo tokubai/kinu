@@ -21,7 +21,7 @@ type ResizeEngine interface {
 }
 
 var (
-	AvailableEngines = []string{ "ImageMagick", "Gift" }
+	AvailableEngines = []string{ "ImageMagick" }
 	ErrUnknownResizeEngine = errors.New("specify unknown resize engine.")
 	selectedEngineType string
 )
@@ -48,8 +48,6 @@ func New(image []byte) (ResizeEngine, error) {
 	switch selectedEngineType {
 	case "ImageMagick":
 		return newImageMagickEngine(image), nil
-	case "Gift":
-		return newGiftEngine(image), nil
 	default:
 		return nil, ErrUnknownResizeEngine
 	}
