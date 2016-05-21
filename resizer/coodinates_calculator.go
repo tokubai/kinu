@@ -16,8 +16,8 @@ type ErrInvalidOption struct {
 func (e *ErrInvalidOption) Error() string { return e.Message }
 
 func NewCoodinatesCalculator(option *ResizeOption) (*CoodinatesCalculator, error) {
-	if option.Width <= 0 || option.Height <= 0 {
-		return nil, &ErrInvalidOption{Message: "option must specify Width and Height" }
+	if option.Width <= 0 && option.Height <= 0 {
+		return nil, &ErrInvalidOption{Message: "option must specify Width or Height" }
 	}
 	return &CoodinatesCalculator{ Width: option.Width, Height: option.Height }, nil
 }
