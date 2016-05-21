@@ -4,8 +4,10 @@ import (
 	"io/ioutil"
 	"github.com/TakatoshiMaeda/kinu/resizer"
 	"strconv"
+	"net/http"
 	"github.com/TakatoshiMaeda/kinu/storage"
 	"sync"
+	"github.com/TakatoshiMaeda/kinu/logger"
 )
 
 type ErrImageUpload struct {
@@ -31,25 +33,44 @@ func UploadImage(imageType string, imageId string, imageFile io.ReadSeeker) erro
 		return &ErrInvalidRequest{Message: "invalid file"}
 	}
 
-	uploaders := make([]*Uploader, 0)
+	contentType := ""
+	switch http.DetectContentType(imageData) {
+	case "image/jpeg":
+		contentType = "jpg"
+	case "image/jpg":
+		contentType = "jpg"
+	default:
+		return &ErrInvalidRequest{Message: "unsupported filetype, only support jpg"}
+	}
+
+	imageMetadata := NewImageMetadata(imageType, imageId)
+
+	uploaders := make([]Uploader, 0)
 	for _, size := range imageUploadSizes {
-		uploader := &Uploader{
-			ImageMetadata: NewImageMetadata(imageType, imageId),
+		uploader := &ImageUploader{
+			ImageMetadata: imageMetadata,
 			ImageBlob: imageData,
 			UploadSize: size,
 		}
 		uploaders = append(uploaders, uploader)
 	}
 
+	uploader := &FileTypeTextUploader{
+		Filetype: contentType,
+		ImageMetadata: imageMetadata,
+	}
+	uploaders = append(uploaders, uploader)
+
 	wg := sync.WaitGroup{}
 	errs := make(chan error, len(uploaders))
 	for _, uploader := range uploaders {
 		wg.Add(1)
-		go func(u *Uploader, errs chan error) {
+		go func(u Uploader, errs chan error) {
 			defer wg.Done()
 			errs <- u.Exec()
 		}(uploader, errs)
 	}
+
 	wg.Wait()
 
 	close(errs)
@@ -70,17 +91,23 @@ func UploadImage(imageType string, imageId string, imageFile io.ReadSeeker) erro
 	return nil
 }
 
-type Uploader struct {
+type Uploader interface {
+	Exec() error
+}
+
+type ImageUploader struct {
+	Uploader
+
 	ImageMetadata *ImageMetadata
 	ImageBlob []byte
 	UploadSize string
 }
 
-func (u *Uploader) NeedsResize() bool {
+func (u *ImageUploader) NeedsResize() bool {
 	return u.UploadSize != "original"
 }
 
-func (u *Uploader) BuildResizeOption() (*resizer.ResizeOption, error) {
+func (u *ImageUploader) BuildResizeOption() (*resizer.ResizeOption, error) {
 	if u.UploadSize == "original" {
 		return &resizer.ResizeOption{}, nil
 	}
@@ -93,7 +120,7 @@ func (u *Uploader) BuildResizeOption() (*resizer.ResizeOption, error) {
 	return &resizer.ResizeOption{Width: size, Height: size}, nil
 }
 
-func (u *Uploader) Exec() error {
+func (u *ImageUploader) Exec() error {
 	if u.NeedsResize() {
 		resizeOption, err := u.BuildResizeOption()
 		if err != nil {
@@ -112,4 +139,20 @@ func (u *Uploader) Exec() error {
 	}
 
 	return storage.PutFromBlob(u.ImageMetadata.FilePath(u.UploadSize), u.ImageBlob)
+}
+
+type FileTypeTextUploader struct {
+	Uploader
+
+	Filetype string
+	ImageMetadata *ImageMetadata
+}
+
+func (u *FileTypeTextUploader) Exec() error {
+	storage, err := storage.Open()
+	if err != nil {
+		return logger.ErrorDebug(err)
+	}
+
+	return storage.PutFromBlob(u.ImageMetadata.BasePath() + "/filetype." + u.Filetype, []byte{})
 }
