@@ -38,23 +38,23 @@ func NewImageMetadata(imageType string, id string) (*ImageMetadata) {
 	}
 }
 
-func (i *ImageMetadata) FileMiddleImagePath(ext string) string {
-	return i.FilePath("1000", ext)
+func (i *ImageMetadata) FileMiddleImagePath() string {
+	return i.FilePath("1000")
 }
 
-func (i *ImageMetadata) FileOriginPath(ext string) string {
-	return i.FilePath("origin", ext)
+func (i *ImageMetadata) FileOriginPath() string {
+	return i.FilePath("origin")
 }
 
-// images/1/1.jpg -> 1000x1000 default middle image
-// images/1/1.2000.jpg -> 2000x2000 larger middle image
-// images/1/1.3000.jpg -> 3000x3000 more larger middle image
-// images/1/1.original.jpg -> original image
-func (i *ImageMetadata) FilePath(size string, ext string) string {
+// images/1/1.kinu -> 1000x1000 default middle image
+// images/1/1.2000.kinu -> 2000x2000 larger middle image
+// images/1/1.3000.kinu -> 3000x3000 more larger middle image
+// images/1/1.original.kinu -> original image
+func (i *ImageMetadata) FilePath(size string) string {
 	if size == "1000" || size == "" {
-		return fmt.Sprintf("%s/%s.%s", i.BasePath(), i.Id, ext)
+		return fmt.Sprintf("%s/%s.kinu", i.BasePath(), i.Id)
 	} else {
-		return fmt.Sprintf("%s/%s.%s.%s", i.BasePath(), i.Id, size, ext)
+		return fmt.Sprintf("%s/%s.%s.kinu", i.BasePath(), i.Id, size)
 	}
 }
 

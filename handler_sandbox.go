@@ -108,7 +108,7 @@ func ApplyFromSandboxHandler(w http.ResponseWriter, r *http.Request, ps httprout
 				return
 			}
 
-			err = st.Move(item.Key(), applyImageMetadata.FilePath(item.ImageSize(), item.Extension()))
+			err = st.Move(item.Key(), applyImageMetadata.FilePath(item.ImageSize()))
 			if err != nil {
 				errs <- logger.ErrorDebug(err)
 				return

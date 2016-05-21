@@ -56,7 +56,7 @@ func (r *ImageGetRequest) FetchImage() (image []byte, err error) {
 	if err != nil {
 		return nil, err
 	}
-	return storage.Fetch(r.imageMetadata.FileMiddleImagePath(r.extension))
+	return storage.Fetch(r.imageMetadata.FileMiddleImagePath())
 }
 
 func (r *ImageGetRequest) NeedsOriginalImage() bool {

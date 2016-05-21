@@ -2,7 +2,6 @@ package main
 import (
 	"io"
 	"io/ioutil"
-	"net/http"
 	"github.com/TakatoshiMaeda/kinu/resizer"
 	"strconv"
 	"github.com/TakatoshiMaeda/kinu/storage"
@@ -32,22 +31,11 @@ func UploadImage(imageType string, imageId string, imageFile io.ReadSeeker) erro
 		return &ErrInvalidRequest{Message: "invalid file"}
 	}
 
-	contentType := ""
-	switch http.DetectContentType(imageData) {
-	case "image/jpeg":
-		contentType = "jpg"
-	case "image/jpg":
-		contentType = "jpg"
-	default:
-		return &ErrInvalidRequest{Message: "unsupported filetype, only support jpg"}
-	}
-
 	uploaders := make([]*Uploader, 0)
 	for _, size := range imageUploadSizes {
 		uploader := &Uploader{
 			ImageMetadata: NewImageMetadata(imageType, imageId),
 			ImageBlob: imageData,
-			Extension: contentType,
 			UploadSize: size,
 		}
 		uploaders = append(uploaders, uploader)
@@ -85,7 +73,6 @@ func UploadImage(imageType string, imageId string, imageFile io.ReadSeeker) erro
 type Uploader struct {
 	ImageMetadata *ImageMetadata
 	ImageBlob []byte
-	Extension string
 	UploadSize string
 }
 
@@ -124,5 +111,5 @@ func (u *Uploader) Exec() error {
 		return err
 	}
 
-	return storage.PutFromBlob(u.ImageMetadata.FilePath(u.UploadSize, u.Extension), u.ImageBlob)
+	return storage.PutFromBlob(u.ImageMetadata.FilePath(u.UploadSize), u.ImageBlob)
 }
