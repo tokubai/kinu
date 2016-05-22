@@ -51,7 +51,11 @@ func GetImageHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 	resizeStartTime := time.Now()
 	resizedImage, err := resizer.Run(originalImage, imageGetRequest.ToResizeOption())
 	if err != nil {
-		RespondInternalServerError(w, err)
+		if err == resizer.ErrTooManyRunningResizeWorker {
+			RespondServiceUnavailable(w, err)
+		} else {
+			RespondInternalServerError(w, err)
+		}
 		return
 	}
 	logger.TrackResult("resize image", resizeStartTime)
