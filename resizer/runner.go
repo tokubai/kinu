@@ -36,7 +36,7 @@ var (
 	resizeWorkerWaitLimiter chan bool
 	resizeWorkerLimiter     chan bool
 
-	resizeWorkerDispatcher = make(chan *ResizeRequest)
+	resizeRequestDispatcher = make(chan *ResizeRequest)
 )
 
 const (
@@ -86,7 +86,7 @@ func init() {
 
 func runWorker() {
 	go func() {
-		for r := range resizeWorkerDispatcher {
+		for r := range resizeRequestDispatcher {
 			go func() {
 				resizeWorkerWaitLimiter <- true
 				defer func() { <-resizeWorkerWaitLimiter }()
@@ -118,6 +118,6 @@ func dispatch(image []byte, option *ResizeOption) (resultChan chan *ResizeResult
 		option:     option,
 		resultChan: make(chan *ResizeResult, 1),
 	}
-	resizeWorkerDispatcher <- request
+	resizeRequestDispatcher <- request
 	return request.resultChan
 }
