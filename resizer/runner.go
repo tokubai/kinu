@@ -109,7 +109,7 @@ func work(image []byte, option *ResizeOption, resultChan chan *ResizeResult) {
 		"resize_worker_pool_max_num": ResizeWorkerWaitPoolMaxNum,
 	}).Debug("resize worker status")
 
-	resultChan <- resize(image, option)
+	resultChan <- Resize(image, option)
 }
 
 func dispatch(image []byte, option *ResizeOption) (resultChan chan *ResizeResult) {

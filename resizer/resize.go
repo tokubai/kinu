@@ -5,7 +5,7 @@ import (
 	"github.com/TakatoshiMaeda/kinu/logger"
 )
 
-func resize(image []byte, option *ResizeOption) (result *ResizeResult) {
+func Resize(image []byte, option *ResizeOption) (result *ResizeResult) {
 	calculator, err := NewCoodinatesCalculator(option)
 	if err != nil {
 		return &ResizeResult{err: logger.ErrorDebug(err)}
