@@ -65,7 +65,7 @@ func init() {
 		}
 		ResizeWorkerRunningLimitMaxNum = num
 	} else {
-		ResizeWorkerRunningLimitMaxNum = runtime.NumCPU() * 10
+		ResizeWorkerRunningLimitMaxNum = runtime.NumCPU() * 15
 	}
 	resizeWorkerLimiter = make(chan bool, ResizeWorkerRunningLimitMaxNum)
 
@@ -77,7 +77,7 @@ func init() {
 		}
 		ResizeWorkerWaitPoolMaxNum = num
 	} else {
-		ResizeWorkerWaitPoolMaxNum = runtime.NumCPU() * 10
+		ResizeWorkerWaitPoolMaxNum = runtime.NumCPU() * 20
 	}
 	resizeWorkerWaitLimiter = make(chan bool, ResizeWorkerWaitPoolMaxNum)
 
