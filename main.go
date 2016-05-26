@@ -36,6 +36,7 @@ func main() {
 
 	engine.Initialize()
 	defer engine.Finalize()
+	InitAuthStack()
 
 	router := httprouter.New()
 
@@ -46,11 +47,11 @@ func main() {
 		router.GET("/debug/pprof/symbol", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) { pprof.Symbol(w, r) })
 	}
 
-	router.GET("/images/:type/:geometry/:filename", GetImageHandler)
+	router.GET("/images/:type/:geometry/:filename", Authentication("images", GetImageHandler))
 
-	router.POST("/upload", UploadImageHandler)
-	router.POST("/sandbox", UploadImageToSandboxHandler)
-	router.POST("/sandbox/attach", ApplyFromSandboxHandler)
+	router.POST("/upload", Authentication("upload", UploadImageHandler))
+	router.POST("/sandbox", Authentication("upload", UploadImageToSandboxHandler))
+	router.POST("/sandbox/attach", Authentication("upload", ApplyFromSandboxHandler))
 
 	logger.Fatal(http.ListenAndServe(":"+listenPort, router))
 }

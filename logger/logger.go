@@ -36,6 +36,25 @@ func WithFields(fields logrus.Fields) *logrus.Entry {
 	return logrus.WithFields(fields)
 }
 
+func Log(entry *logrus.Entry, level string, args ...interface{}) {
+	switch level {
+	case "Info":
+		entry.Info(args)
+	case "Debug":
+		entry.Debug(args)
+	case "Warn":
+		entry.Warn(args)
+	case "Error":
+		entry.Error(args)
+	case "Fatal":
+		entry.Fatal(args)
+	case "Panic":
+		entry.Panic(args)
+	default:
+		entry.Panic(args)
+	}
+}
+
 func Debug(args ...interface{}) {
 	logrus.Debug(args)
 }
