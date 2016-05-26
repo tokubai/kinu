@@ -1,8 +1,12 @@
 package resizer
 
 import (
-	"github.com/TakatoshiMaeda/kinu/engine"
+	"errors"
+	"github.com/Sirupsen/logrus"
 	"github.com/TakatoshiMaeda/kinu/logger"
+	"os"
+	"runtime"
+	"strconv"
 )
 
 type ResizeOption struct {
@@ -12,54 +16,108 @@ type ResizeOption struct {
 	Quality       int
 }
 
+type ResizeRequest struct {
+	image      []byte
+	option     *ResizeOption
+	resultChan chan *ResizeResult
+}
+
+type ResizeResult struct {
+	image []byte
+	err   error
+}
+
+var (
+	ResizeWorkerRunningLimitMaxNum int
+	ResizeWorkerWaitPoolMaxNum     int
+
+	ErrTooManyRunningResizeWorker = errors.New("Too many running resize worker error.")
+
+	resizeWorkerWaitLimiter chan bool
+	resizeWorkerLimiter     chan bool
+
+	resizeRequestDispatcher = make(chan *ResizeRequest)
+)
+
 const (
 	DEFAULT_QUALITY = 70
 )
 
 func Run(image []byte, option *ResizeOption) (resizedImage []byte, err error) {
-	calculator, err := NewCoodinatesCalculator(option)
-	if err != nil {
-		return nil, logger.ErrorDebug(err)
-	}
-
-	if option.Quality == 0 {
-		option.Quality = DEFAULT_QUALITY
-	}
-
-	engine, err := engine.New(image)
-	if err != nil {
-		return nil, logger.ErrorDebug(err)
-	}
-
-	engine.SetResizeSize(option.Width, option.Height)
-
-	err = engine.Open()
-	if err != nil {
-		return nil, logger.ErrorDebug(err)
-	}
-
-	defer engine.Close()
-
-	calculator.SetImageSize(engine.GetImageWidth(), engine.GetImageHeight())
-
-	var coodinates *Coodinates
-	if option.NeedsAutoCrop {
-		coodinates = calculator.AutoCrop()
+	if IsFreeResizeWorkerAvailable() {
+		result := <-dispatch(image, option)
+		return result.image, result.err
 	} else {
-		coodinates = calculator.Resize()
+		return nil, ErrTooManyRunningResizeWorker
 	}
+}
 
-	err = engine.Resize(coodinates.ResizeWidth, coodinates.ResizeHeight)
-	if err != nil {
-		return nil, logger.ErrorDebug(err)
-	}
+func IsFreeResizeWorkerAvailable() bool {
+	return len(resizeWorkerWaitLimiter) < ResizeWorkerWaitPoolMaxNum
+}
 
-	if coodinates.CanCrop() {
-		err = engine.Crop(coodinates.CropWidth, coodinates.CropHeight, coodinates.WidthOffset, coodinates.HeightOffset)
+func init() {
+	maxNum := os.Getenv("KINU_RESIZE_WORKER_MAX_SIZE")
+	if len(maxNum) != 0 {
+		num, err := strconv.Atoi(maxNum)
 		if err != nil {
-			return nil, logger.ErrorDebug(err)
+			panic(err)
 		}
+		ResizeWorkerRunningLimitMaxNum = num
+	} else {
+		ResizeWorkerRunningLimitMaxNum = runtime.NumCPU() * 15
 	}
+	resizeWorkerLimiter = make(chan bool, ResizeWorkerRunningLimitMaxNum)
 
-	return engine.Generate()
+	waitPool := os.Getenv("KINU_RESIZE_WAIT_POOL_SIZE")
+	if len(waitPool) != 0 {
+		num, err := strconv.Atoi(waitPool)
+		if err != nil {
+			panic(err)
+		}
+		ResizeWorkerWaitPoolMaxNum = num
+	} else {
+		ResizeWorkerWaitPoolMaxNum = runtime.NumCPU() * 20
+	}
+	resizeWorkerWaitLimiter = make(chan bool, ResizeWorkerWaitPoolMaxNum)
+
+	runWorker()
+}
+
+func runWorker() {
+	go func() {
+		for r := range resizeRequestDispatcher {
+			go func() {
+				resizeWorkerWaitLimiter <- true
+				defer func() { <-resizeWorkerWaitLimiter }()
+				work(r.image, r.option, r.resultChan)
+			}()
+		}
+	}()
+}
+
+func work(image []byte, option *ResizeOption, resultChan chan *ResizeResult) {
+	resizeWorkerLimiter <- true
+	defer func() {
+		<-resizeWorkerLimiter
+	}()
+
+	logger.WithFields(logrus.Fields{
+		"resize_worker_num":          len(resizeWorkerLimiter),
+		"resize_worker_max_num":      ResizeWorkerRunningLimitMaxNum,
+		"resize_worker_pool_num":     len(resizeWorkerWaitLimiter),
+		"resize_worker_pool_max_num": ResizeWorkerWaitPoolMaxNum,
+	}).Debug("resize worker status")
+
+	resultChan <- Resize(image, option)
+}
+
+func dispatch(image []byte, option *ResizeOption) (resultChan chan *ResizeResult) {
+	request := &ResizeRequest{
+		image:      image,
+		option:     option,
+		resultChan: make(chan *ResizeResult, 1),
+	}
+	resizeRequestDispatcher <- request
+	return request.resultChan
 }

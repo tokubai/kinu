@@ -79,6 +79,11 @@ func RespondInternalServerError(w http.ResponseWriter, err error) {
 	w.WriteHeader(http.StatusInternalServerError)
 }
 
+func RespondServiceUnavailable(w http.ResponseWriter, err error) {
+	logger.ErrorDebug(err)
+	w.WriteHeader(http.StatusServiceUnavailable)
+}
+
 type UploadResult struct {
 	ImageType string `json:"name"`
 	ImageId   string `json:"id"`
