@@ -13,7 +13,7 @@ type ImageMagickEngine struct {
 	opened            bool
 	originalImageBlob []byte
 
-	height, width int
+	heightSizeHint, widthSizeHint int
 }
 
 func newImageMagickEngine(image []byte) (e *ImageMagickEngine) {
@@ -21,14 +21,14 @@ func newImageMagickEngine(image []byte) (e *ImageMagickEngine) {
 }
 
 func (e *ImageMagickEngine) SetSizeHint(width int, height int) {
-	e.height = height
-	e.width = width
+	e.heightSizeHint = height
+	e.widthSizeHint = width
 }
 
 func (e *ImageMagickEngine) Open() error {
 	e.mw = imagick.NewMagickWand()
-	if e.height > 0 && e.width > 0 {
-		e.mw.SetOption("jpeg:size", fmt.Sprintf("%dx%d", e.height, e.width))
+	if e.heightSizeHint > 0 && e.widthSizeHint > 0 {
+		e.mw.SetOption("jpeg:size", fmt.Sprintf("%dx%d", e.heightSizeHint, e.widthSizeHint))
 	}
 	err := e.mw.ReadImageBlob(e.originalImageBlob)
 	if err != nil {
