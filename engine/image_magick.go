@@ -20,7 +20,7 @@ func newImageMagickEngine(image []byte) (e *ImageMagickEngine) {
 	return &ImageMagickEngine{originalImageBlob: image}
 }
 
-func (e *ImageMagickEngine) SetResizeSize(width int, height int) {
+func (e *ImageMagickEngine) SetSizeHint(width int, height int) {
 	e.height = height
 	e.width = width
 }

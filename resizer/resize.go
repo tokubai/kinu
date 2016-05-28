@@ -20,7 +20,7 @@ func Resize(image []byte, option *ResizeOption) (result *ResizeResult) {
 		return &ResizeResult{err: logger.ErrorDebug(err)}
 	}
 
-	engine.SetResizeSize(option.Width, option.Height)
+	engine.SetSizeHint(option.Width, option.Height)
 
 	err = engine.Open()
 	if err != nil {

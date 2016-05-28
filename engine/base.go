@@ -10,7 +10,7 @@ type ResizeEngine interface {
 	Open() error
 	Close()
 
-	SetResizeSize(width, height int)
+	SetSizeHint(width, height int)
 
 	GetImageHeight() int
 	GetImageWidth() int
