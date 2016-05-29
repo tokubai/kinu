@@ -9,10 +9,10 @@ import (
 type Storage interface {
 	Open() error
 
-	Fetch(key string) ([]byte, error)
+	Fetch(key string) (*Object, error)
 
-	PutFromBlob(key string, image []byte) error
-	Put(key string, imageFile io.ReadSeeker) error
+	PutFromBlob(key string, image []byte, metadata map[string]string) error
+	Put(key string, imageFile io.ReadSeeker, metadata map[string]string) error
 
 	List(key string) ([]StorageItem, error)
 
@@ -24,6 +24,11 @@ type StorageItem interface {
 	Filename() string
 	Extension() string
 	ImageSize() string
+}
+
+type Object struct {
+	Body []byte
+	Metadata map[string]string
 }
 
 var (

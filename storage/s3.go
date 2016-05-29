@@ -70,7 +70,7 @@ func (s *S3Storage) BuildKey(key string) string {
 	return s.bucketBasePath + "/" + key
 }
 
-func (s *S3Storage) Fetch(key string) ([]byte, error) {
+func (s *S3Storage) Fetch(key string) (*Object, error) {
 	key = s.BuildKey(key)
 
 	params := &s3.GetObjectInput{
@@ -98,15 +98,21 @@ func (s *S3Storage) Fetch(key string) ([]byte, error) {
 
 	defer resp.Body.Close()
 
-	image, err := ioutil.ReadAll(resp.Body)
+	object := &Object{
+		Metadata: make(map[string]string, 0),
+	}
+	for k, v := range resp.Metadata {
+		object.Metadata[k] = *v
+	}
+	object.Body, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, logger.ErrorDebug(err)
 	}
 
-	return image, nil
+	return object, nil
 }
 
-func (s *S3Storage) PutFromBlob(key string, image []byte) error {
+func (s *S3Storage) PutFromBlob(key string, image []byte, metadata map[string]string) error {
 	tmpfile, err := ioutil.TempFile("", "kinu-upload")
 	if err != nil {
 		return logger.ErrorDebug(err)
@@ -118,14 +124,20 @@ func (s *S3Storage) PutFromBlob(key string, image []byte) error {
 
 	defer tmpfile.Close()
 
-	return s.Put(key, tmpfile)
+	return s.Put(key, tmpfile, metadata)
 }
 
-func (s *S3Storage) Put(key string, imageFile io.ReadSeeker) error {
+func (s *S3Storage) Put(key string, imageFile io.ReadSeeker, metadata map[string]string) error {
+	putMetadata := make(map[string]*string, 0)
+	for k, v := range metadata {
+		putMetadata[k] = &v
+	}
+
 	_, err := s.client.PutObject(&s3.PutObjectInput{
 		Bucket: aws.String(s.bucket),
 		Key:    aws.String(s.BuildKey(key)),
 		Body:   imageFile,
+		Metadata: putMetadata,
 	})
 
 	logger.WithFields(logrus.Fields{
