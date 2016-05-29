@@ -21,7 +21,7 @@ func GetImageHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 		return
 	}
 
-	imageGetRequest, err := NewImageGetRequest(ps)
+	request, err := NewImageGetRequest(ps)
 	if err != nil {
 		if _, ok := err.(*ErrInvalidRequest); ok {
 			RespondBadRequest(w, err.Error())
@@ -31,8 +31,10 @@ func GetImageHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 		return
 	}
 
+	resource := NewResource(request.Category, request.Id)
+
 	imageFetchStartTime := time.Now()
-	originalImage, err := imageGetRequest.FetchImage()
+	image, err := resource.Fetch(request.Geometry)
 	if err != nil {
 		if err == storage.ErrImageNotFound {
 			RespondNotFound(w)
@@ -43,13 +45,13 @@ func GetImageHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 	}
 	logger.TrackResult("fetch image from storage", imageFetchStartTime)
 
-	if imageGetRequest.NeedsOriginalImage() {
-		RespondImage(w, originalImage)
+	if request.Geometry.NeedsOriginalImage {
+		RespondImage(w, image.Body)
 		return
 	}
 
 	resizeStartTime := time.Now()
-	resizedImage, err := resizer.Run(originalImage, imageGetRequest.ToResizeOption())
+	resizedImage, err := resizer.Run(image.Body, request.Geometry.ToResizeOption())
 	if err != nil {
 		if err == resizer.ErrTooManyRunningResizeWorker {
 			RespondServiceUnavailable(w, err)

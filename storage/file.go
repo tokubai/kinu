@@ -173,6 +173,11 @@ func (s *FileStorageItem) Key() string {
 	return s.Name
 }
 
+func (s *FileStorageItem) Filename() string {
+	path := strings.Split(s.Key(), "/")
+	return path[len(path)-1]
+}
+
 func (s *FileStorageItem) Extension() string {
 	path := strings.Split(s.Name, ".")
 	return path[len(path)-1]

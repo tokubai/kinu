@@ -1,67 +1,29 @@
 package main
 
 import (
-	"github.com/TakatoshiMaeda/kinu/logger"
-	"github.com/TakatoshiMaeda/kinu/resizer"
-	"github.com/TakatoshiMaeda/kinu/storage"
-	"io"
-	"io/ioutil"
-	"net/http"
+)
+import (
 	"strconv"
 	"sync"
+	"github.com/TakatoshiMaeda/kinu/resizer"
+	"github.com/TakatoshiMaeda/kinu/storage"
+	"github.com/TakatoshiMaeda/kinu/logger"
 )
 
-type ErrImageUpload struct {
+type ErrUpload struct {
 	error
 	Errors []error
 }
 
-func (e *ErrImageUpload) Error() string {
-	messages := "Image upload error. cause, "
+func (e *ErrUpload) Error() string {
+	messages := "Upload error. cause, "
 	for i, err := range e.Errors {
 		messages = messages + strconv.Itoa(i+1) + ". " + err.Error() + "  "
 	}
 	return messages
 }
 
-var (
-	imageUploadSizes = []string{"original", "1000", "2000", "3000"}
-)
-
-func UploadImage(imageType string, imageId string, imageFile io.ReadSeeker) error {
-	imageData, err := ioutil.ReadAll(imageFile)
-	if err != nil {
-		return &ErrInvalidRequest{Message: "invalid file"}
-	}
-
-	contentType := ""
-	switch http.DetectContentType(imageData) {
-	case "image/jpeg":
-		contentType = "jpg"
-	case "image/jpg":
-		contentType = "jpg"
-	default:
-		return &ErrInvalidRequest{Message: "unsupported filetype, only support jpg"}
-	}
-
-	imageMetadata := NewImageMetadata(imageType, imageId)
-
-	uploaders := make([]Uploader, 0)
-	for _, size := range imageUploadSizes {
-		uploader := &ImageUploader{
-			ImageMetadata: imageMetadata,
-			ImageBlob:     imageData,
-			UploadSize:    size,
-		}
-		uploaders = append(uploaders, uploader)
-	}
-
-	uploader := &FileTypeTextUploader{
-		Filetype:      contentType,
-		ImageMetadata: imageMetadata,
-	}
-	uploaders = append(uploaders, uploader)
-
+func Upload(uploaders []Uploader) error {
 	wg := sync.WaitGroup{}
 	errs := make(chan error, len(uploaders))
 	for _, uploader := range uploaders {
@@ -86,7 +48,7 @@ func UploadImage(imageType string, imageId string, imageFile io.ReadSeeker) erro
 	if len(errors) == 0 {
 		return nil
 	} else {
-		return &ErrImageUpload{Errors: errors}
+		return &ErrUpload{Errors: errors}
 	}
 
 	return nil
@@ -98,8 +60,7 @@ type Uploader interface {
 
 type ImageUploader struct {
 	Uploader
-
-	ImageMetadata *ImageMetadata
+	Path string
 	ImageBlob     []byte
 	UploadSize    string
 }
@@ -139,21 +100,22 @@ func (u *ImageUploader) Exec() error {
 		return err
 	}
 
-	return storage.PutFromBlob(u.ImageMetadata.FilePath(u.UploadSize), u.ImageBlob)
+	// TODO: SetMetadata
+
+	return storage.PutFromBlob(u.Path, u.ImageBlob)
 }
 
-type FileTypeTextUploader struct {
+type TextFileUploader struct {
 	Uploader
 
-	Filetype      string
-	ImageMetadata *ImageMetadata
+	Body string
+	Path string
 }
 
-func (u *FileTypeTextUploader) Exec() error {
+func (u *TextFileUploader) Exec() error {
 	storage, err := storage.Open()
 	if err != nil {
 		return logger.ErrorDebug(err)
 	}
-
-	return storage.PutFromBlob(u.ImageMetadata.BasePath()+"/filetype."+u.Filetype, []byte{})
+	return storage.PutFromBlob(u.Path, []byte(u.Body))
 }

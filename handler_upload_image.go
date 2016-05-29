@@ -30,7 +30,7 @@ func UploadImageHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Pa
 		return
 	}
 
-	err = UploadImage(imageType, imageId, file)
+	err = NewResource(imageType, imageId).Store(file)
 	if err != nil {
 		if _, ok := err.(*ErrInvalidRequest); ok {
 			RespondBadRequest(w, err.Error())

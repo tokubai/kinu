@@ -3,16 +3,33 @@ package main
 import (
 	"github.com/Sirupsen/logrus"
 	"github.com/TakatoshiMaeda/kinu/logger"
-	"github.com/TakatoshiMaeda/kinu/resizer"
-	"github.com/TakatoshiMaeda/kinu/storage"
 	"github.com/julienschmidt/httprouter"
+	"strings"
+	"path/filepath"
 )
 
 type ImageGetRequest struct {
-	imageMetadata *ImageMetadata
-
+	Category string
+	Id string
+	Geometry  *Geometry
 	extension string
-	geometry  *Geometry
+}
+
+func ExtractId(filename string) string {
+	return strings.Split(filename, ".")[0]
+}
+
+func ExtractExtension(filename string) string {
+	return strings.Replace(filepath.Ext(filename), ".", "", 1)
+}
+
+func IsValidImageExt(ext string) bool {
+	for _, e := range validExtensions {
+		if e == ext {
+			return true
+		}
+	}
+	return false
 }
 
 func NewImageGetRequest(ps httprouter.Params) (*ImageGetRequest, error) {
@@ -24,11 +41,6 @@ func NewImageGetRequest(ps httprouter.Params) (*ImageGetRequest, error) {
 	filename := ps.ByName("filename")
 	if len(filename) == 0 {
 		return nil, &ErrInvalidRequest{Message: "required filename."}
-	}
-
-	ext := ExtractExtension(filename)
-	if len(ext) == 0 {
-		return nil, &ErrInvalidRequest{Message: "invalid file extension"}
 	}
 
 	id := ExtractId(filename)
@@ -45,24 +57,7 @@ func NewImageGetRequest(ps httprouter.Params) (*ImageGetRequest, error) {
 		"geometry":   geometry.ToString(),
 		"image_type": imageType,
 		"image_id":   id,
-		"extension":  ext,
 	}).Debug("parse success image get request.")
 
-	return &ImageGetRequest{imageMetadata: NewImageMetadata(imageType, id), geometry: geometry, extension: ext}, nil
-}
-
-func (r *ImageGetRequest) FetchImage() (image []byte, err error) {
-	storage, err := storage.Open()
-	if err != nil {
-		return nil, err
-	}
-	return storage.Fetch(r.imageMetadata.FileMiddleImagePath())
-}
-
-func (r *ImageGetRequest) NeedsOriginalImage() bool {
-	return r.geometry.NeedsOriginalImage
-}
-
-func (r *ImageGetRequest) ToResizeOption() *resizer.ResizeOption {
-	return r.geometry.ToResizeOption()
+	return &ImageGetRequest{Category: imageType, Id: id, Geometry: geometry}, nil
 }
