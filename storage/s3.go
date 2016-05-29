@@ -217,6 +217,11 @@ func (s *S3StorageItem) Key() string {
 	return *s.Object.Key
 }
 
+func (s *S3StorageItem) Filename() string {
+	path := strings.Split(s.Key(), "/")
+	return path[len(path)-1]
+}
+
 func (s *S3StorageItem) Extension() string {
 	path := strings.Split(*s.Object.Key, ".")
 	return path[len(path)-1]

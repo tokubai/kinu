@@ -21,6 +21,7 @@ type Storage interface {
 
 type StorageItem interface {
 	Key() string
+	Filename() string
 	Extension() string
 	ImageSize() string
 }
