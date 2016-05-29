@@ -10,6 +10,7 @@ import (
 	"github.com/TakatoshiMaeda/kinu/logger"
 	"strconv"
 	"regexp"
+	"github.com/Sirupsen/logrus"
 )
 
 var (
@@ -79,15 +80,29 @@ func (r *Resource) Fetch(geo *Geometry) (*Image, error) {
 
 	st, err := storage.Open()
 	if err != nil {
-		return image, err
+		return image, logger.ErrorDebug(err)
 	}
 
-	image.Body, err = st.Fetch(r.FilePath(middleImageSize))
+	obj, err := st.Fetch(r.FilePath(middleImageSize))
 	if err != nil {
-		return image, err
+		return image, logger.ErrorDebug(err)
 	}
 
-	// TODO: Set Metadata
+	image.Body = obj.Body
+
+	logger.WithFields(logrus.Fields{
+		"metadata": obj.Metadata,
+	}).Debug("metadata")
+
+	image.Height, err = strconv.Atoi(obj.Metadata["Height"])
+	if err != nil {
+		return image, logger.ErrorDebug(err)
+	}
+
+	image.Width, err = strconv.Atoi(obj.Metadata["Width"])
+	if err != nil {
+		return image, logger.ErrorDebug(err)
+	}
 
 	return image, nil
 }
@@ -95,12 +110,12 @@ func (r *Resource) Fetch(geo *Geometry) (*Image, error) {
 func (r *Resource) MoveTo(category, id string) error {
 	st, err := storage.Open()
 	if err != nil {
-		return err
+		return logger.ErrorDebug(err)
 	}
 
 	items, err := st.List(r.BasePath())
 	if err != nil {
-		return err
+		return logger.ErrorDebug(err)
 	}
 
 	moveToResource := NewResource(category, id)

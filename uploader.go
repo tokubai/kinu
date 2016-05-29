@@ -8,6 +8,7 @@ import (
 	"github.com/TakatoshiMaeda/kinu/resizer"
 	"github.com/TakatoshiMaeda/kinu/storage"
 	"github.com/TakatoshiMaeda/kinu/logger"
+	"github.com/TakatoshiMaeda/kinu/engine"
 )
 
 type ErrUpload struct {
@@ -76,7 +77,7 @@ func (u *ImageUploader) BuildResizeOption() (*resizer.ResizeOption, error) {
 
 	size, err := strconv.Atoi(u.UploadSize)
 	if err != nil {
-		return nil, err
+		return nil, logger.ErrorDebug(err)
 	}
 
 	return &resizer.ResizeOption{Width: size, Height: size}, nil
@@ -86,23 +87,31 @@ func (u *ImageUploader) Exec() error {
 	if u.NeedsResize() {
 		resizeOption, err := u.BuildResizeOption()
 		if err != nil {
-			return err
+			return logger.ErrorDebug(err)
 		}
 
 		u.ImageBlob, err = resizer.Run(u.ImageBlob, resizeOption)
 		if err != nil {
-			return err
+			return logger.ErrorDebug(err)
 		}
 	}
 
 	storage, err := storage.Open()
 	if err != nil {
-		return err
+		return logger.ErrorDebug(err)
 	}
 
-	// TODO: SetMetadata
+	e, err := engine.New(u.ImageBlob)
+	if err != nil {
+		return logger.ErrorDebug(err)
+	}
 
-	return storage.PutFromBlob(u.Path, u.ImageBlob)
+	err = e.Open()
+	if err != nil {
+		return logger.ErrorDebug(err)
+	}
+
+	return storage.PutFromBlob(u.Path, u.ImageBlob, map[string]string{"Width": strconv.Itoa(e.GetImageWidth()), "Height": strconv.Itoa(e.GetImageHeight())})
 }
 
 type TextFileUploader struct {
@@ -117,5 +126,5 @@ func (u *TextFileUploader) Exec() error {
 	if err != nil {
 		return logger.ErrorDebug(err)
 	}
-	return storage.PutFromBlob(u.Path, []byte(u.Body))
+	return storage.PutFromBlob(u.Path, []byte(u.Body), map[string]string{})
 }

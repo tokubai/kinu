@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"encoding/json"
 )
 
 type FileStorage struct {
@@ -48,7 +49,7 @@ func (s *FileStorage) BuildKey(key string) string {
 	return s.baseDirectory + "/" + key
 }
 
-func (s *FileStorage) Fetch(key string) ([]byte, error) {
+func (s *FileStorage) Fetch(key string) (*Object, error) {
 	key = s.BuildKey(key)
 
 	_, err := os.Stat(key)
@@ -60,22 +61,34 @@ func (s *FileStorage) Fetch(key string) ([]byte, error) {
 	if err != nil {
 		return nil, logger.ErrorDebug(err)
 	}
-
 	defer fp.Close()
 
 	logger.WithFields(logrus.Fields{
 		"key": key,
 	}).Debug("found object from file")
 
-	image, err := ioutil.ReadAll(fp)
+	object := &Object{}
+	object.Body, err = ioutil.ReadAll(fp)
 	if err != nil {
 		return nil, logger.ErrorDebug(err)
 	}
 
-	return image, nil
+	metadataFp, err := os.Open(key + ".metadata")
+	if err != nil {
+		return nil, logger.ErrorDebug(err)
+	}
+	defer metadataFp.Close()
+
+	decorder := json.NewDecoder(metadataFp)
+	err = decorder.Decode(&object.Metadata)
+	if err != nil {
+		return nil, logger.ErrorDebug(err)
+	}
+
+	return object, nil
 }
 
-func (s *FileStorage) PutFromBlob(key string, image []byte) error {
+func (s *FileStorage) PutFromBlob(key string, image []byte, metadata map[string]string) error {
 	key = s.BuildKey(key)
 
 	directory := filepath.Dir(key)
@@ -90,6 +103,12 @@ func (s *FileStorage) PutFromBlob(key string, image []byte) error {
 		return logger.ErrorDebug(err)
 	}
 
+	j, err := json.Marshal(metadata)
+	if err != nil {
+		return logger.ErrorDebug(err)
+	}
+	ioutil.WriteFile(key + ".metadata", j, os.ModePerm)
+
 	logger.WithFields(logrus.Fields{
 		"directory": directory,
 		"key":       key,
@@ -98,12 +117,12 @@ func (s *FileStorage) PutFromBlob(key string, image []byte) error {
 	return nil
 }
 
-func (s *FileStorage) Put(key string, imageFile io.ReadSeeker) error {
+func (s *FileStorage) Put(key string, imageFile io.ReadSeeker, metadata map[string]string) error {
 	image, err := ioutil.ReadAll(imageFile)
 	if err != nil {
 		return logger.ErrorDebug(err)
 	}
-	return s.PutFromBlob(key, image)
+	return s.PutFromBlob(key, image, metadata)
 }
 
 func (s *FileStorage) List(key string) ([]StorageItem, error) {

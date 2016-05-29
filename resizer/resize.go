@@ -3,6 +3,7 @@ package resizer
 import (
 	"github.com/TakatoshiMaeda/kinu/engine"
 	"github.com/TakatoshiMaeda/kinu/logger"
+	"github.com/Sirupsen/logrus"
 )
 
 func Resize(image []byte, option *ResizeOption) (result *ResizeResult) {
@@ -20,7 +21,18 @@ func Resize(image []byte, option *ResizeOption) (result *ResizeResult) {
 		return &ResizeResult{err: logger.ErrorDebug(err)}
 	}
 
-	engine.SetSizeHint(option.Width, option.Height)
+	if option.SizeHintHeight > 0 && option.SizeHintWidth > 0 {
+		engine.SetSizeHint(option.SizeHintWidth, option.SizeHintHeight)
+		logger.WithFields(logrus.Fields{
+			"width_size_hint": option.SizeHintWidth,
+			"height_size_hint": option.SizeHintHeight,
+		}).Debug("size hint")
+	} else {
+		logger.WithFields(logrus.Fields{
+			"width_size_hint": option.SizeHintWidth,
+			"height_size_hint": option.SizeHintHeight,
+		}).Debug("not set size hint")
+	}
 
 	err = engine.Open()
 	if err != nil {
