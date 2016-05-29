@@ -1,14 +1,13 @@
 package main
 
+import ()
 import (
-)
-import (
-	"strconv"
-	"sync"
+	"github.com/TakatoshiMaeda/kinu/engine"
+	"github.com/TakatoshiMaeda/kinu/logger"
 	"github.com/TakatoshiMaeda/kinu/resizer"
 	"github.com/TakatoshiMaeda/kinu/storage"
-	"github.com/TakatoshiMaeda/kinu/logger"
-	"github.com/TakatoshiMaeda/kinu/engine"
+	"strconv"
+	"sync"
 )
 
 type ErrUpload struct {
@@ -61,9 +60,9 @@ type Uploader interface {
 
 type ImageUploader struct {
 	Uploader
-	Path string
-	ImageBlob     []byte
-	UploadSize    string
+	Path       string
+	ImageBlob  []byte
+	UploadSize string
 }
 
 func (u *ImageUploader) NeedsResize() bool {

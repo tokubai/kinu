@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"encoding/json"
 	"github.com/Sirupsen/logrus"
 	"github.com/TakatoshiMaeda/kinu/logger"
 	"io"
@@ -8,7 +9,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"encoding/json"
 )
 
 type FileStorage struct {
@@ -107,7 +107,7 @@ func (s *FileStorage) PutFromBlob(key string, image []byte, metadata map[string]
 	if err != nil {
 		return logger.ErrorDebug(err)
 	}
-	ioutil.WriteFile(key + ".metadata", j, os.ModePerm)
+	ioutil.WriteFile(key+".metadata", j, os.ModePerm)
 
 	logger.WithFields(logrus.Fields{
 		"directory": directory,

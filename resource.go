@@ -1,21 +1,21 @@
 package main
 
 import (
+	"fmt"
+	"github.com/Sirupsen/logrus"
+	"github.com/TakatoshiMaeda/kinu/logger"
+	"github.com/TakatoshiMaeda/kinu/storage"
 	"io"
 	"io/ioutil"
 	"net/http"
-	"sync"
-	"fmt"
-	"github.com/TakatoshiMaeda/kinu/storage"
-	"github.com/TakatoshiMaeda/kinu/logger"
-	"strconv"
 	"regexp"
-	"github.com/Sirupsen/logrus"
+	"strconv"
+	"sync"
 )
 
 var (
-	validExtensions = []string{"jpg", "jpeg"}
-	middleImageSizes = []string{"original", "1000", "2000", "3000"}
+	validExtensions     = []string{"jpg", "jpeg"}
+	middleImageSizes    = []string{"original", "1000", "2000", "3000"}
 	imageFilePathRegexp *regexp.Regexp
 )
 
@@ -29,9 +29,9 @@ type Resource struct {
 }
 
 type Image struct {
-	Width int
+	Width  int
 	Height int
-	Body []byte
+	Body   []byte
 }
 
 type ErrMove struct {
@@ -50,7 +50,7 @@ func (e *ErrMove) Error() string {
 func NewResource(category string, id string) *Resource {
 	return &Resource{
 		Category: category,
-		Id: id,
+		Id:       id,
 	}
 }
 
@@ -135,7 +135,7 @@ func (r *Resource) MoveTo(category, id string) error {
 			if imageFilePathRegexp.MatchString(item.Key()) {
 				err = st.Move(item.Key(), moveToResource.FilePath(item.ImageSize()))
 			} else {
-				err = st.Move(item.Key(), moveToResource.BasePath() + "/" + item.Filename())
+				err = st.Move(item.Key(), moveToResource.BasePath()+"/"+item.Filename())
 			}
 
 			if err != nil {
@@ -183,9 +183,9 @@ func (r *Resource) Store(file io.ReadSeeker) error {
 	uploaders := make([]Uploader, 0)
 	for _, size := range middleImageSizes {
 		uploader := &ImageUploader{
-			ImageBlob:     imageData,
-			Path: r.FilePath(size),
-			UploadSize:    size,
+			ImageBlob:  imageData,
+			Path:       r.FilePath(size),
+			UploadSize: size,
 		}
 		uploaders = append(uploaders, uploader)
 	}

@@ -27,12 +27,12 @@ type StorageItem interface {
 }
 
 type Object struct {
-	Body []byte
+	Body     []byte
 	Metadata map[string]string
 }
 
 var (
-	ErrImageNotFound           = errors.New("not found requested image")
+	ErrImageNotFound = errors.New("not found requested image")
 )
 
 type ErrInvalidStorageOption struct {

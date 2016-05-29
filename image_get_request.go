@@ -4,13 +4,13 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/TakatoshiMaeda/kinu/logger"
 	"github.com/julienschmidt/httprouter"
-	"strings"
 	"path/filepath"
+	"strings"
 )
 
 type ImageGetRequest struct {
-	Category string
-	Id string
+	Category  string
+	Id        string
 	Geometry  *Geometry
 	extension string
 }

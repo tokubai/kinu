@@ -15,7 +15,7 @@ type ResizeOption struct {
 	NeedsAutoCrop bool
 	Quality       int
 
-	SizeHintWidth int
+	SizeHintWidth  int
 	SizeHintHeight int
 }
 
