@@ -96,12 +96,12 @@ func (r *Resource) Fetch(geo *Geometry) (*Image, error) {
 
 	image.Height, err = strconv.Atoi(obj.Metadata["Height"])
 	if err != nil {
-		return image, logger.ErrorDebug(err)
+		logger.ErrorDebug(err)
 	}
 
 	image.Width, err = strconv.Atoi(obj.Metadata["Width"])
 	if err != nil {
-		return image, logger.ErrorDebug(err)
+		logger.ErrorDebug(err)
 	}
 
 	return image, nil
