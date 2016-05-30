@@ -27,14 +27,11 @@ func Resize(image []byte, option *ResizeOption) (result *ResizeResult) {
 		coodinates = calculator.Calc(option)
 		engine.SetSizeHint(coodinates.ResizeWidth, coodinates.ResizeHeight)
 		logger.WithFields(logrus.Fields{
-			"width_size_hint":  option.SizeHintWidth,
-			"height_size_hint": option.SizeHintHeight,
+			"width_size_hint":  coodinates.ResizeWidth,
+			"height_size_hint": coodinates.ResizeHeight,
 		}).Debug("size hint")
 	} else {
-		logger.WithFields(logrus.Fields{
-			"width_size_hint":  option.SizeHintWidth,
-			"height_size_hint": option.SizeHintHeight,
-		}).Debug("not set size hint")
+		logger.Debug("not set size hint")
 	}
 
 	err = engine.Open()
