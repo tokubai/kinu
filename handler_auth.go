@@ -16,6 +16,9 @@ var (
 	authTypeRegistry map[string]reflect.Type = map[string]reflect.Type{
 		"NoAuth":    reflect.TypeOf(NoAuth{}),
 		"BasicAuth": reflect.TypeOf(BasicAuth{}),
+		"IPAuth": reflect.TypeOf(IPAuth{}),
+		"S3ReadAuth": reflect.TypeOf(S3ReadAuth{}),
+		"S3WriteAuth": reflect.TypeOf(S3WriteAuth{}),
 	}
 )
 
