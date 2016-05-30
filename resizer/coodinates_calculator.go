@@ -66,10 +66,22 @@ func (c *CoodinatesCalculator) AutoCrop() (coodinates *Coodinates) {
 	return coodinates
 }
 
+func (c *CoodinatesCalculator) Calc(option *ResizeOption) (coodinates *Coodinates) {
+	if option.NeedsAutoCrop {
+		return c.AutoCrop()
+	} else {
+		return c.Resize()
+	}
+}
+
 type Coodinates struct {
 	ResizeWidth, ResizeHeight int
 	CropWidth, CropHeight     int
 	WidthOffset, HeightOffset int
+}
+
+func (c *Coodinates) Valid() bool {
+	return c.ResizeHeight > 0 && c.ResizeWidth > 0
 }
 
 func (c *Coodinates) CanCrop() bool {

@@ -9,16 +9,6 @@ import (
 	"strconv"
 )
 
-type ResizeOption struct {
-	Width         int
-	Height        int
-	NeedsAutoCrop bool
-	Quality       int
-
-	SizeHintWidth  int
-	SizeHintHeight int
-}
-
 type ResizeRequest struct {
 	image      []byte
 	option     *ResizeOption
@@ -123,4 +113,18 @@ func dispatch(image []byte, option *ResizeOption) (resultChan chan *ResizeResult
 	}
 	resizeRequestDispatcher <- request
 	return request.resultChan
+}
+
+type ResizeOption struct {
+	Width         int
+	Height        int
+	NeedsAutoCrop bool
+	Quality       int
+
+	SizeHintWidth  int
+	SizeHintHeight int
+}
+
+func (o *ResizeOption) HasSizeHint() bool {
+	return o.SizeHintHeight > 0 && o.SizeHintWidth > 0
 }
