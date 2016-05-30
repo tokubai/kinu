@@ -21,8 +21,11 @@ func Resize(image []byte, option *ResizeOption) (result *ResizeResult) {
 		return &ResizeResult{err: logger.ErrorDebug(err)}
 	}
 
-	if option.SizeHintHeight > 0 && option.SizeHintWidth > 0 {
-		engine.SetSizeHint(option.SizeHintWidth, option.SizeHintHeight)
+	var coodinates *Coodinates
+	if option.HasSizeHint() {
+		calculator.SetImageSize(option.SizeHintWidth, option.SizeHintHeight)
+		coodinates = calculator.Calc(option)
+		engine.SetSizeHint(coodinates.ResizeWidth, coodinates.ResizeHeight)
 		logger.WithFields(logrus.Fields{
 			"width_size_hint":  option.SizeHintWidth,
 			"height_size_hint": option.SizeHintHeight,
@@ -41,13 +44,9 @@ func Resize(image []byte, option *ResizeOption) (result *ResizeResult) {
 
 	defer engine.Close()
 
-	calculator.SetImageSize(engine.GetImageWidth(), engine.GetImageHeight())
-
-	var coodinates *Coodinates
-	if option.NeedsAutoCrop {
-		coodinates = calculator.AutoCrop()
-	} else {
-		coodinates = calculator.Resize()
+	if !coodinates.Valid() {
+		calculator.SetImageSize(engine.GetImageWidth(), engine.GetImageHeight())
+		coodinates = calculator.Calc(option)
 	}
 
 	err = engine.Resize(coodinates.ResizeWidth, coodinates.ResizeHeight)
