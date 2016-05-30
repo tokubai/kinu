@@ -25,10 +25,21 @@ const (
 	ORIGINAL
 )
 
+const (
+	GEO_NONE = iota
+	GEO_WIDTH
+	GEO_HEIGHT
+	GEO_QUALITY
+	GEO_AUTO_CROP
+	GEO_ORIGINAL
+	GEO_MIDDLE
+)
+
 func ParseGeometry(geo string) (*Geometry, error) {
 	conditions := strings.Split(geo, ",")
 
 	var width, height, quality int
+	var pos = GEO_NONE
 	var needsAutoCrop, needsOriginal bool
 	for _, condition := range conditions {
 		cond := strings.Split(condition, "=")
@@ -39,18 +50,30 @@ func ParseGeometry(geo string) (*Geometry, error) {
 
 		switch cond[0] {
 		case "w":
+			if pos >= GEO_WIDTH {
+				return nil, &ErrInvalidGeometryOrderRequest{Message: "geometry w must be fixed order."}
+			}
+			pos = GEO_WIDTH
 			if w, err := strconv.Atoi(cond[1]); err != nil {
 				return nil, &ErrInvalidRequest{Message: "geometry w is must be numeric."}
 			} else {
 				width = w
 			}
 		case "h":
+			if pos >= GEO_HEIGHT {
+				return nil, &ErrInvalidGeometryOrderRequest{Message: "geometry h must be fixed order."}
+			}
+			pos = GEO_HEIGHT
 			if h, err := strconv.Atoi(cond[1]); err != nil {
 				return nil, &ErrInvalidRequest{Message: "geometry h is must be numeric."}
 			} else {
 				height = h
 			}
 		case "q":
+			if pos >= GEO_QUALITY {
+				return nil, &ErrInvalidGeometryOrderRequest{Message: "geometry q must be fixed order."}
+			}
+			pos = GEO_QUALITY
 			if q, err := strconv.Atoi(cond[1]); err != nil {
 				return nil, &ErrInvalidRequest{Message: "geometry q is must be numeric."}
 			} else if q > MAX_QUALITY || q < MIN_QUALITY {
@@ -59,12 +82,20 @@ func ParseGeometry(geo string) (*Geometry, error) {
 				quality = q
 			}
 		case "c":
+			if pos >= GEO_AUTO_CROP {
+				return nil, &ErrInvalidGeometryOrderRequest{Message: "geometry c must be fixed order."}
+			}
+			pos = GEO_AUTO_CROP
 			if cond[1] == "true" {
 				needsAutoCrop = true
 			} else {
 				needsAutoCrop = false
 			}
 		case "o":
+			if pos >= GEO_ORIGINAL {
+				return nil, &ErrInvalidGeometryOrderRequest{Message: "geometry o must be fixed order."}
+			}
+			pos = GEO_ORIGINAL
 			if cond[1] == "true" {
 				needsOriginal = true
 			} else {

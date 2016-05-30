@@ -25,6 +25,8 @@ func GetImageHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 	if err != nil {
 		if _, ok := err.(*ErrInvalidRequest); ok {
 			RespondBadRequest(w, err.Error())
+		} else if _, ok := err.(*ErrInvalidGeometryOrderRequest); ok {
+			RespondNotFound(w)
 		} else {
 			RespondInternalServerError(w, err)
 		}

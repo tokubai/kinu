@@ -23,6 +23,11 @@ type ErrInvalidRequest struct {
 	Message string
 }
 
+type ErrInvalidGeometryOrderRequest struct {
+	error
+	Message string
+}
+
 func (e *ErrInvalidRequest) Error() string { return e.Message }
 
 func init() {
