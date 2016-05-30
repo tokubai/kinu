@@ -52,6 +52,11 @@ func GetImageHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 		return
 	}
 
+	if len(request.Geometry.MiddleImageSize) != 0 {
+		RespondImage(w, image.Body)
+		return
+	}
+
 	resizeStartTime := time.Now()
 	resizeOption := request.Geometry.ToResizeOption()
 	resizeOption.SizeHintHeight = image.Height
