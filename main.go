@@ -45,10 +45,7 @@ func main() {
 	router := httprouter.New()
 
 	if os.Getenv("KINU_DEBUG") == "1" {
-		router.GET("/debug/pprof/", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) { pprof.Index(w, r) })
-		router.GET("/debug/pprof/cmdline", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) { pprof.Cmdline(w, r) })
-		router.GET("/debug/pprof/profile", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) { pprof.Profile(w, r) })
-		router.GET("/debug/pprof/symbol", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) { pprof.Symbol(w, r) })
+		router.GET("/debug/pprof/*pprof", HandlePprof)
 	}
 
 	router.GET("/images/:type/:geometry/:filename", GetImageHandler)
@@ -58,6 +55,19 @@ func main() {
 	router.POST("/sandbox/attach", ApplyFromSandboxHandler)
 
 	logger.Fatal(http.ListenAndServe(":"+listenPort, router))
+}
+
+func HandlePprof(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	switch p.ByName("pprof") {
+	case "/cmdline":
+		pprof.Cmdline(w, r)
+	case "/profile":
+		pprof.Profile(w, r)
+	case "/symbol":
+		pprof.Symbol(w, r)
+	default:
+		pprof.Index(w, r)
+	}
 }
 
 func SetContentType(w http.ResponseWriter, filename string) error {
