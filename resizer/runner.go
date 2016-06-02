@@ -21,6 +21,8 @@ type ResizeResult struct {
 }
 
 var (
+	isResizeWorkerMode bool
+
 	ResizeWorkerRunningLimitMaxNum int
 	ResizeWorkerWaitPoolMaxNum     int
 
@@ -37,11 +39,16 @@ const (
 )
 
 func Run(image []byte, option *ResizeOption) (resizedImage []byte, err error) {
-	if IsFreeResizeWorkerAvailable() {
-		result := <-dispatch(image, option)
-		return result.image, result.err
+	if isResizeWorkerMode {
+		if IsFreeResizeWorkerAvailable() {
+			result := <-dispatch(image, option)
+			return result.image, result.err
+		} else {
+			return nil, ErrTooManyRunningResizeWorker
+		}
 	} else {
-		return nil, ErrTooManyRunningResizeWorker
+		result := Resize(image, option)
+		return result.image, result.err
 	}
 }
 
@@ -74,7 +81,10 @@ func init() {
 	}
 	resizeWorkerWaitLimiter = make(chan bool, ResizeWorkerWaitPoolMaxNum)
 
-	runWorker()
+	isResizeWorkerMode = (len(os.Getenv("KINU_RESIZE_WORKER_MODE")) != 0)
+	if isResizeWorkerMode {
+		runWorker()
+	}
 }
 
 func runWorker() {
