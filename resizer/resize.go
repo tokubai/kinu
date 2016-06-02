@@ -41,7 +41,7 @@ func Resize(image []byte, option *ResizeOption) (result *ResizeResult) {
 
 	defer engine.Close()
 
-	if !coodinates.Valid() {
+	if coodinates == nil {
 		calculator.SetImageSize(engine.GetImageWidth(), engine.GetImageHeight())
 		coodinates = calculator.Calc(option)
 	}
