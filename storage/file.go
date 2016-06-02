@@ -73,17 +73,18 @@ func (s *FileStorage) Fetch(key string) (*Object, error) {
 		return nil, logger.ErrorDebug(err)
 	}
 
+	// Ignore metadata file parse error
 	metadataFp, err := os.Open(key + ".metadata")
-	if err != nil {
-		return nil, logger.ErrorDebug(err)
+	if err == nil {
+		decorder := json.NewDecoder(metadataFp)
+		err = decorder.Decode(&object.Metadata)
+		if err != nil {
+			logger.ErrorDebug(err)
+		}
+	} else {
+		logger.ErrorDebug(err)
 	}
 	defer metadataFp.Close()
-
-	decorder := json.NewDecoder(metadataFp)
-	err = decorder.Decode(&object.Metadata)
-	if err != nil {
-		return nil, logger.ErrorDebug(err)
-	}
 
 	return object, nil
 }
