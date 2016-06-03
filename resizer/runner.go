@@ -10,8 +10,8 @@ import (
 )
 
 type ResizeRequest struct {
-	image      []byte
-	option     *ResizeOption
+	image         []byte
+	option        *ResizeOption
 	resultPayload chan *ResizeResult
 }
 
@@ -23,8 +23,8 @@ type ResizeResult struct {
 var (
 	IsWorkerMode bool
 
-	ResizeWorkerSize               int
-	ResizeWorkerWaitBufferNum      int
+	ResizeWorkerSize          int
+	ResizeWorkerWaitBufferNum int
 
 	ErrTooManyRunningResizeWorker = errors.New("Too many running resize worker error.")
 
@@ -44,7 +44,7 @@ func Run(image []byte, option *ResizeOption) (resizedImage []byte, err error) {
 	if CanResizeRequest() {
 		request := &ResizeRequest{image: image, option: option, resultPayload: make(chan *ResizeResult, 1)}
 		requestPayload <- request
-		result := <- request.resultPayload
+		result := <-request.resultPayload
 		return result.image, result.err
 	} else {
 		return nil, ErrTooManyRunningResizeWorker
@@ -88,7 +88,7 @@ func init() {
 	}
 
 	logger.WithFields(logrus.Fields{
-		"worker_size": ResizeWorkerSize,
+		"worker_size":        ResizeWorkerSize,
 		"resize_wait_buffer": ResizeWorkerWaitBufferNum,
 	}).Info("set worker config")
 

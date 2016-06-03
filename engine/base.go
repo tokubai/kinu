@@ -2,10 +2,10 @@ package engine
 
 import (
 	"errors"
+	"github.com/Sirupsen/logrus"
+	"github.com/TakatoshiMaeda/kinu/logger"
 	"gopkg.in/gographics/imagick.v2/imagick"
 	"os"
-	"github.com/TakatoshiMaeda/kinu/logger"
-	"github.com/Sirupsen/logrus"
 )
 
 type ResizeEngine interface {

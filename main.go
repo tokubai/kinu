@@ -3,22 +3,22 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/TakatoshiMaeda/kinu/engine"
 	"github.com/TakatoshiMaeda/kinu/logger"
 	"github.com/julienschmidt/httprouter"
+	"github.com/zenazn/goji/bind"
+	"github.com/zenazn/goji/graceful"
 	"net/http"
 	"net/http/pprof"
 	"os"
 	"path/filepath"
 	"runtime"
-	"fmt"
-	"github.com/zenazn/goji/graceful"
-	"github.com/zenazn/goji/bind"
 )
 
 const (
 	DEFAULT_BIND = "127.0.0.1:8080"
-	VERSION = "1.0.0.alpha"
+	VERSION      = "1.0.0.alpha"
 )
 
 var (
