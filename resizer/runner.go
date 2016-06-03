@@ -12,7 +12,7 @@ import (
 type ResizeRequest struct {
 	image      []byte
 	option     *ResizeOption
-	resultChan chan *ResizeResult
+	resultPayload chan *ResizeResult
 }
 
 type ResizeResult struct {
@@ -24,14 +24,11 @@ var (
 	isResizeWorkerMode bool
 
 	ResizeWorkerRunningLimitMaxNum int
-	ResizeWorkerWaitPoolMaxNum     int
+	ResizeWorkerWaitPoolNum     int
 
 	ErrTooManyRunningResizeWorker = errors.New("Too many running resize worker error.")
 
-	resizeWorkerWaitLimiter chan bool
-	resizeWorkerLimiter     chan bool
-
-	resizeRequestDispatcher = make(chan *ResizeRequest)
+	requestPayload chan *ResizeRequest
 )
 
 const (
@@ -41,7 +38,9 @@ const (
 func Run(image []byte, option *ResizeOption) (resizedImage []byte, err error) {
 	if isResizeWorkerMode {
 		if IsFreeResizeWorkerAvailable() {
-			result := <-dispatch(image, option)
+			request := &ResizeRequest{image: image, option: option, resultPayload: make(chan *ResizeResult, 1)}
+			requestPayload <- request
+			result := <- request.resultPayload
 			return result.image, result.err
 		} else {
 			return nil, ErrTooManyRunningResizeWorker
@@ -53,7 +52,7 @@ func Run(image []byte, option *ResizeOption) (resizedImage []byte, err error) {
 }
 
 func IsFreeResizeWorkerAvailable() bool {
-	return len(resizeWorkerWaitLimiter) < ResizeWorkerWaitPoolMaxNum
+	return len(requestPayload) < (ResizeWorkerRunningLimitMaxNum + ResizeWorkerWaitPoolNum)
 }
 
 func init() {
@@ -67,62 +66,41 @@ func init() {
 	} else {
 		ResizeWorkerRunningLimitMaxNum = runtime.NumCPU() * 15
 	}
-	resizeWorkerLimiter = make(chan bool, ResizeWorkerRunningLimitMaxNum)
 
-	waitPool := os.Getenv("KINU_RESIZE_WAIT_POOL_SIZE")
+	waitPool := os.Getenv("KINU_RESIZE_WORKER_WAIT_BUFFER")
 	if len(waitPool) != 0 {
-		num, err := strconv.Atoi(waitPool)
-		if err != nil {
-			panic(err)
-		}
-		ResizeWorkerWaitPoolMaxNum = num
+	     num, err := strconv.Atoi(waitPool)
+	     if err != nil {
+	             panic(err)
+	     }
+	     ResizeWorkerWaitPoolNum = num
 	} else {
-		ResizeWorkerWaitPoolMaxNum = runtime.NumCPU() * 20
+	     ResizeWorkerWaitPoolNum = runtime.NumCPU() * 20
 	}
-	resizeWorkerWaitLimiter = make(chan bool, ResizeWorkerWaitPoolMaxNum)
 
 	isResizeWorkerMode = (len(os.Getenv("KINU_RESIZE_WORKER_MODE")) != 0)
 	if isResizeWorkerMode {
+		requestPayload = make(chan *ResizeRequest, ResizeWorkerRunningLimitMaxNum + ResizeWorkerWaitPoolNum)
 		runWorker()
 	}
 }
 
 func runWorker() {
-	go func() {
-		for r := range resizeRequestDispatcher {
-			go func() {
-				resizeWorkerWaitLimiter <- true
-				defer func() { <-resizeWorkerWaitLimiter }()
-				work(r.image, r.option, r.resultChan)
-			}()
-		}
-	}()
-}
-
-func work(image []byte, option *ResizeOption, resultChan chan *ResizeResult) {
-	resizeWorkerLimiter <- true
-	defer func() {
-		<-resizeWorkerLimiter
-	}()
-
-	logger.WithFields(logrus.Fields{
-		"resize_worker_num":          len(resizeWorkerLimiter),
-		"resize_worker_max_num":      ResizeWorkerRunningLimitMaxNum,
-		"resize_worker_pool_num":     len(resizeWorkerWaitLimiter),
-		"resize_worker_pool_max_num": ResizeWorkerWaitPoolMaxNum,
-	}).Debug("resize worker status")
-
-	resultChan <- Resize(image, option)
-}
-
-func dispatch(image []byte, option *ResizeOption) (resultChan chan *ResizeResult) {
-	request := &ResizeRequest{
-		image:      image,
-		option:     option,
-		resultChan: make(chan *ResizeResult, 1),
+	for i := 1; i <= ResizeWorkerRunningLimitMaxNum; i++ {
+		go worker(i, requestPayload)
 	}
-	resizeRequestDispatcher <- request
-	return request.resultChan
+}
+
+func worker(id int, requests <-chan *ResizeRequest) {
+	logger.WithFields(logrus.Fields{
+		"worker_id": id,
+	}).Debug("launch resize worker")
+	for r := range requests {
+		logger.WithFields(logrus.Fields{
+			"worker_id": id,
+		}).Debug("processing resize from worker")
+		r.resultPayload <- Resize(r.image, r.option)
+	}
 }
 
 type ResizeOption struct {
