@@ -55,7 +55,8 @@ func main() {
 	router.POST("/sandbox", UploadImageToSandboxHandler)
 	router.POST("/sandbox/attach", ApplyFromSandboxHandler)
 
-	router.GET("/stats", StatsHandler)
+	router.GET("/version", VersionHandler)
+	router.GET("/worker/stats", WorkerStatsHandler)
 
 	addr := os.Getenv("KINU_BIND")
 	if len(addr) == 0 {
