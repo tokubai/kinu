@@ -11,11 +11,17 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"fmt"
+	"github.com/zenazn/goji/graceful"
+	"github.com/zenazn/goji/bind"
+)
+
+const (
+	DEFAULT_BIND = "127.0.0.1:8080"
 )
 
 var (
 	ErrInvalidImageExt = errors.New("supported image type is only jpg/jpeg")
-	listenPort         = "80"
 )
 
 type ErrInvalidRequest struct {
@@ -29,12 +35,6 @@ type ErrInvalidGeometryOrderRequest struct {
 }
 
 func (e *ErrInvalidRequest) Error() string { return e.Message }
-
-func init() {
-	if len(os.Getenv("KINU_PORT")) != 0 {
-		listenPort = os.Getenv("KINU_PORT")
-	}
-}
 
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
@@ -54,9 +54,27 @@ func main() {
 	router.POST("/sandbox", UploadImageToSandboxHandler)
 	router.POST("/sandbox/attach", ApplyFromSandboxHandler)
 
-	logger.Info("kinu started")
+	addr := os.Getenv("KINU_BIND")
+	if len(addr) == 0 {
+		addr = DEFAULT_BIND
+	}
 
-	logger.Fatal(http.ListenAndServe(":"+listenPort, router))
+	graceful.HandleSignals()
+	graceful.PreHook(func() {
+		logger.Info("kinu received graceful shutdown signal.")
+	})
+	graceful.PostHook(func() {
+		logger.Info("kinu stopped.")
+	})
+
+	logger.Info(fmt.Sprintf("starting kinu on %s", addr))
+
+	err := graceful.Serve(bind.Socket(addr), router)
+	if err != nil {
+		logger.Panic(err)
+	}
+
+	graceful.Wait()
 }
 
 func HandlePprof(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
