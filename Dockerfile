@@ -39,7 +39,7 @@ RUN mkdir -p /tmp/golang && \
     rm -rf /tmp/golang
 
 ENV KINU_VERSION 1.0.0.alpha1
-ENV KINU_BIND 127.0.0.1:80
+ENV KINU_BIND 0.0.0.0:80
 ENV KINU_LOG_LEVEL info
 ENV KINU_LOG_FORMAT ltsv
 ENV KINU_RESIZE_ENGINE ImageMagick
