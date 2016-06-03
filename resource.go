@@ -66,6 +66,8 @@ func (r *Resource) Fetch(geo *Geometry) (*Image, error) {
 	var middleImageSize string
 	if geo.NeedsOriginalImage {
 		middleImageSize = "original"
+	} else if len(geo.MiddleImageSize) != 0 {
+		middleImageSize = geo.MiddleImageSize
 	} else if geo.Height <= 1000 && geo.Width <= 1000 {
 		middleImageSize = "1000"
 	} else if geo.Height <= 2000 && geo.Width <= 2000 {

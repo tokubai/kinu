@@ -12,11 +12,12 @@ const MAX_QUALITY = 100
 const MIN_QUALITY = 0
 
 type Geometry struct {
-	Width              int  `json:"width"`
-	Height             int  `json:"height"`
-	Quality            int  `json:"quality"`
-	NeedsAutoCrop      bool `json:"needs_auto_crop"`
-	NeedsOriginalImage bool `json:"needs_original_image"`
+	Width              int    `json:"width"`
+	Height             int    `json:"height"`
+	Quality            int    `json:"quality"`
+	NeedsAutoCrop      bool   `json:"needs_auto_crop"`
+	NeedsOriginalImage bool   `json:"needs_original_image"`
+	MiddleImageSize    string `json:"middle_image_size"`
 }
 
 const (
@@ -39,6 +40,7 @@ func ParseGeometry(geo string) (*Geometry, error) {
 	conditions := strings.Split(geo, ",")
 
 	var width, height, quality int
+	var middleImageSize = ""
 	var pos = GEO_NONE
 	var needsAutoCrop, needsOriginal bool
 	for _, condition := range conditions {
@@ -101,10 +103,28 @@ func ParseGeometry(geo string) (*Geometry, error) {
 			} else {
 				needsOriginal = false
 			}
+		case "m":
+			if pos >= GEO_MIDDLE {
+				return nil, &ErrInvalidGeometryOrderRequest{Message: "geometry m must be fixed order."}
+			}
+			pos = GEO_MIDDLE
+			if cond[1] == "true" {
+				middleImageSize = "1000"
+			} else {
+				for _, size := range middleImageSizes {
+					if cond[1] == size {
+						middleImageSize = cond[1]
+						break
+					}
+				}
+			}
+			if len(middleImageSize) == 0 {
+				return nil, &ErrInvalidRequest{Message: "must specify valid middle image size."}
+			}
 		}
 	}
 
-	if width == 0 && height == 0 && needsOriginal == false {
+	if len(middleImageSize) == 0 && width == 0 && height == 0 && needsOriginal == false {
 		return nil, &ErrInvalidRequest{Message: "must specify width or height when not original mode."}
 	}
 
@@ -112,7 +132,7 @@ func ParseGeometry(geo string) (*Geometry, error) {
 		quality = DEFAULT_QUALITY
 	}
 
-	return &Geometry{Width: width, Height: height, Quality: quality, NeedsAutoCrop: needsAutoCrop, NeedsOriginalImage: needsOriginal}, nil
+	return &Geometry{Width: width, Height: height, Quality: quality, NeedsAutoCrop: needsAutoCrop, NeedsOriginalImage: needsOriginal, MiddleImageSize: middleImageSize}, nil
 }
 
 func (g *Geometry) ResizeMode() int {
