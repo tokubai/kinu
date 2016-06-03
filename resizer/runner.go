@@ -25,7 +25,6 @@ var (
 
 	ResizeWorkerSize               int
 	ResizeWorkerWaitBufferNum      int
-	ResizeRequestPayloadSize       int
 
 	ErrTooManyRunningResizeWorker = errors.New("Too many running resize worker error.")
 
@@ -57,7 +56,7 @@ func RequestPayloadLen() int {
 }
 
 func CanResizeRequest() bool {
-	return len(requestPayload) < ResizeRequestPayloadSize
+	return len(requestPayload) < ResizeWorkerWaitBufferNum
 }
 
 func init() {
@@ -85,21 +84,15 @@ func init() {
 		}
 		ResizeWorkerWaitBufferNum = num
 	} else {
-		ResizeWorkerWaitBufferNum = runtime.NumCPU() * 20
+		ResizeWorkerWaitBufferNum = ResizeWorkerSize * 3
 	}
-
-	ResizeRequestPayloadSize = ResizeWorkerSize + ResizeWorkerWaitBufferNum
 
 	logger.WithFields(logrus.Fields{
 		"worker_size": ResizeWorkerSize,
 		"resize_wait_buffer": ResizeWorkerWaitBufferNum,
 	}).Info("set worker config")
 
-	logger.WithFields(logrus.Fields{
-		"resize_request_payload_size": ResizeRequestPayloadSize,
-	}).Debug("set payload size")
-
-	requestPayload = make(chan *ResizeRequest, ResizeRequestPayloadSize)
+	requestPayload = make(chan *ResizeRequest, ResizeWorkerWaitBufferNum)
 
 	runWorker()
 }
