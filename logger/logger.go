@@ -23,10 +23,10 @@ func init() {
 	switch formatterType {
 	case "json":
 		logrus.SetFormatter(&logrus.JSONFormatter{})
-	case "text":
-		logrus.SetFormatter(&logrus.TextFormatter{})
-	default:
+	case "ltsv":
 		logrus.SetFormatter(&ltsv.Formatter{})
+	default:
+		logrus.SetFormatter(&logrus.TextFormatter{})
 	}
 
 	logrus.SetOutput(os.Stdout)
