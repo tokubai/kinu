@@ -4,6 +4,8 @@ import (
 	"errors"
 	"io"
 	"os"
+	"github.com/Sirupsen/logrus"
+	"github.com/TakatoshiMaeda/kinu/logger"
 )
 
 type Storage interface {
@@ -64,6 +66,10 @@ func init() {
 	if !isAvailableStorageType {
 		panic("unknown KINU_STORAGE_TYPE " + selectedStorageType + ".")
 	}
+
+	logger.WithFields(logrus.Fields{
+		"storage_type": selectedStorageType,
+	}).Info("setup storage")
 }
 
 func Open() (Storage, error) {

@@ -84,7 +84,16 @@ func init() {
 		ResizeWorkerWaitBufferNum = runtime.NumCPU() * 20
 	}
 
-	ResizeRequestPayloadSize = ResizeWorkerSize + ResizeWorkerWaitBufferNum)
+	ResizeRequestPayloadSize = ResizeWorkerSize + ResizeWorkerWaitBufferNum
+
+	logger.WithFields(logrus.Fields{
+		"worker_size": ResizeWorkerSize,
+		"resize_wait_buffer": ResizeWorkerWaitBufferNum,
+	}).Info("set worker config")
+
+	logger.WithFields(logrus.Fields{
+		"resize_request_payload_size": ResizeRequestPayloadSize,
+	}).Debug("set payload size")
 
 	requestPayload = make(chan *ResizeRequest, ResizeRequestPayloadSize)
 
@@ -95,16 +104,22 @@ func runWorker() {
 	for i := 1; i <= ResizeWorkerSize; i++ {
 		go worker(i, requestPayload)
 	}
+
+	logger.WithFields(logrus.Fields{
+		"worker_size": ResizeWorkerSize,
+	}).Info("resize worker started")
 }
 
 func worker(id int, requests <-chan *ResizeRequest) {
 	logger.WithFields(logrus.Fields{
 		"worker_id": id,
 	}).Debug("launch resize worker")
+
 	for r := range requests {
 		logger.WithFields(logrus.Fields{
 			"worker_id": id,
 		}).Debug("processing resize from worker")
+
 		r.resultPayload <- Resize(r.image, r.option)
 	}
 }

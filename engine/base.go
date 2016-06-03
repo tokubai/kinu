@@ -4,6 +4,8 @@ import (
 	"errors"
 	"gopkg.in/gographics/imagick.v2/imagick"
 	"os"
+	"github.com/TakatoshiMaeda/kinu/logger"
+	"github.com/Sirupsen/logrus"
 )
 
 type ResizeEngine interface {
@@ -42,6 +44,10 @@ func init() {
 	if !isAvailableEngine {
 		panic("unknown KINU_RESIZE_ENGINE " + selectedEngineType + ".")
 	}
+
+	logger.WithFields(logrus.Fields{
+		"resize_engine_type": selectedEngineType,
+	}).Info("setup resize engine")
 }
 
 func New(image []byte) (ResizeEngine, error) {

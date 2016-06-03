@@ -54,6 +54,8 @@ func main() {
 	router.POST("/sandbox", UploadImageToSandboxHandler)
 	router.POST("/sandbox/attach", ApplyFromSandboxHandler)
 
+	logger.Info("kinu started")
+
 	logger.Fatal(http.ListenAndServe(":"+listenPort, router))
 }
 
