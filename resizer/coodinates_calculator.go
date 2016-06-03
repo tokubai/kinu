@@ -1,6 +1,9 @@
 package resizer
 
-import "math"
+import(
+	"math"
+	"fmt"
+)
 
 type CoodinatesCalculator struct {
 	ImageWidth  int
@@ -46,7 +49,7 @@ func (c *CoodinatesCalculator) Resize() (coodinates *Coodinates) {
 }
 
 func (c *CoodinatesCalculator) AutoCrop() (coodinates *Coodinates) {
-	coodinates = &Coodinates{CropHeight: c.Height, CropWidth: c.Width}
+	coodinates = &Coodinates{CropHeight: c.Height, CropWidth: c.Width, CropFirst: false}
 
 	heightScaleRatio := float64(c.Height) / float64(c.ImageHeight)
 	widthScaleRatio := float64(c.Width) / float64(c.ImageWidth)
@@ -62,13 +65,29 @@ func (c *CoodinatesCalculator) AutoCrop() (coodinates *Coodinates) {
 		coodinates.ResizeHeight = int(float64(c.ImageHeight) * scaleRatio)
 		coodinates.ResizeWidth = c.Width
 	}
+	return coodinates
+}
 
+func (c *CoodinatesCalculator) ManualCrop(option *ResizeOption) (coodinates *Coodinates) {
+	coodinates = &Coodinates{CropFirst: true}
+
+	assumeRatio := float64(c.ImageWidth) / float64(option.AssumptionWidth)
+
+	coodinates.CropHeight = int(float64(option.CropHeight) * assumeRatio)
+	coodinates.CropWidth = int(float64(option.CropWidth) * assumeRatio)
+	coodinates.WidthOffset = int(float64(option.CropWidthOffset) * assumeRatio)
+	coodinates.HeightOffset = int(float64(option.CropHeightOffset) * assumeRatio)
+
+	coodinates.ResizeWidth = option.Width
+	coodinates.ResizeHeight = option.Height
 	return coodinates
 }
 
 func (c *CoodinatesCalculator) Calc(option *ResizeOption) (coodinates *Coodinates) {
 	if option.NeedsAutoCrop {
 		return c.AutoCrop()
+	} else if option.NeedsManualCrop {
+		return c.ManualCrop(option)
 	} else {
 		return c.Resize()
 	}
@@ -77,6 +96,7 @@ func (c *CoodinatesCalculator) Calc(option *ResizeOption) (coodinates *Coodinate
 type Coodinates struct {
 	ResizeWidth, ResizeHeight int
 	CropWidth, CropHeight     int
+	CropFirst                 bool
 	WidthOffset, HeightOffset int
 }
 
@@ -86,4 +106,16 @@ func (c *Coodinates) Valid() bool {
 
 func (c *Coodinates) CanCrop() bool {
 	return c.CropWidth > 0 && c.CropHeight > 0
+}
+
+func (c *Coodinates) ToString() string {
+	return fmt.Sprintf("ResizeWidth: %d, ResizeHeight: %d, CropFirst: %t, CropWidth: %d, CropHeight: %d, WidthOffset: %d HeightOffset: %d",
+		c.ResizeWidth,
+		c.ResizeHeight,
+		c.CropFirst,
+		c.CropWidth,
+		c.CropHeight,
+		c.WidthOffset,
+		c.HeightOffset,
+	)
 }

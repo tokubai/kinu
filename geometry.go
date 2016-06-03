@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/TakatoshiMaeda/kinu/resizer"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -16,6 +17,12 @@ type Geometry struct {
 	Height             int    `json:"height"`
 	Quality            int    `json:"quality"`
 	NeedsAutoCrop      bool   `json:"needs_auto_crop"`
+	NeedsManualCrop    bool   `json:"needs_manual_crop"`
+	CropWidthOffset    int    `json:"cropWidthOffset"`
+	CropHeightOffset   int    `json:"cropHeightOffset"`
+	CropWidth          int    `json:"cropWidth"`
+	CropHeight         int    `json:"cropHeight"`
+	AssumptionWidth    int    `json:"assumptionWidth"`
 	NeedsOriginalImage bool   `json:"needs_original_image"`
 	MiddleImageSize    string `json:"middle_image_size"`
 }
@@ -36,13 +43,22 @@ const (
 	GEO_MIDDLE
 )
 
+var (
+	manualCropRegexp *regexp.Regexp
+)
+
+func init() {
+	manualCropRegexp = regexp.MustCompile(`(\d+)_(\d+)_(\d+)_(\d+)_(\d+)`)
+}
+
 func ParseGeometry(geo string) (*Geometry, error) {
 	conditions := strings.Split(geo, ",")
 
 	var width, height, quality int
 	var middleImageSize = ""
 	var pos = GEO_NONE
-	var needsAutoCrop, needsOriginal bool
+	var needsAutoCrop, needsManualCrop, needsOriginal bool
+	var cropWidthOffset, cropHeightOffset, cropWidth, cropHeight, assumptionWidth int
 	for _, condition := range conditions {
 		cond := strings.Split(condition, "=")
 
@@ -90,6 +106,16 @@ func ParseGeometry(geo string) (*Geometry, error) {
 			pos = GEO_AUTO_CROP
 			if cond[1] == "true" {
 				needsAutoCrop = true
+			} else if manualCropRegexp.Match([]byte(cond[1])) {
+				needsManualCrop = true
+				result := manualCropRegexp.FindAllStringSubmatch(cond[1], -1)
+				if result != nil {
+					cropWidthOffset, _ = strconv.Atoi(result[0][1])
+					cropHeightOffset, _ = strconv.Atoi(result[0][2])
+					cropWidth, _ = strconv.Atoi(result[0][3])
+					cropHeight, _ = strconv.Atoi(result[0][4])
+					assumptionWidth, _ = strconv.Atoi(result[0][5])
+				}
 			} else {
 				needsAutoCrop = false
 			}
@@ -132,7 +158,18 @@ func ParseGeometry(geo string) (*Geometry, error) {
 		quality = DEFAULT_QUALITY
 	}
 
-	return &Geometry{Width: width, Height: height, Quality: quality, NeedsAutoCrop: needsAutoCrop, NeedsOriginalImage: needsOriginal, MiddleImageSize: middleImageSize}, nil
+	return &Geometry{
+		Width: width, Height: height,
+		Quality: quality,
+		NeedsAutoCrop: needsAutoCrop,
+		NeedsManualCrop: needsManualCrop,
+		CropWidthOffset: cropWidthOffset,
+		CropHeightOffset: cropHeightOffset,
+		CropWidth: cropWidth,
+		CropHeight: cropHeight,
+		AssumptionWidth: assumptionWidth,
+		MiddleImageSize: middleImageSize,
+		NeedsOriginalImage: needsOriginal}, nil
 }
 
 func (g *Geometry) ResizeMode() int {
@@ -149,13 +186,19 @@ func (g *Geometry) ResizeMode() int {
 
 func (g *Geometry) ToResizeOption() (resizeOption *resizer.ResizeOption) {
 	return &resizer.ResizeOption{
-		Width:         g.Width,
-		Height:        g.Height,
-		Quality:       g.Quality,
-		NeedsAutoCrop: g.NeedsAutoCrop,
+		Width:            g.Width,
+		Height:           g.Height,
+		Quality:          g.Quality,
+		NeedsAutoCrop:    g.NeedsAutoCrop,
+		NeedsManualCrop:  g.NeedsManualCrop,
+		CropWidthOffset:  g.CropWidthOffset,
+		CropHeightOffset: g.CropHeightOffset,
+		CropWidth:        g.CropWidth,
+		CropHeight:       g.CropHeight,
+		AssumptionWidth:  g.AssumptionWidth,
 	}
 }
 
 func (g *Geometry) ToString() string {
-	return fmt.Sprintf("Width: %d, Height: %d, Quality: %d, NeedsAutoCrop: %t, NeedsOriginalImage: %t", g.Width, g.Height, g.Quality, g.NeedsAutoCrop, g.NeedsOriginalImage)
+	return fmt.Sprintf("Width: %d, Height: %d, Quality: %d, NeedsAutoCrop: %t, NeedsManualCrop: %t, NeedsOriginalImage: %t", g.Width, g.Height, g.Quality, g.NeedsAutoCrop, g.NeedsManualCrop, g.NeedsOriginalImage)
 }
