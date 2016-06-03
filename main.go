@@ -18,6 +18,7 @@ import (
 
 const (
 	DEFAULT_BIND = "127.0.0.1:8080"
+	VERSION = "1.0.0.alpha"
 )
 
 var (
@@ -53,6 +54,8 @@ func main() {
 	router.POST("/upload", UploadImageHandler)
 	router.POST("/sandbox", UploadImageToSandboxHandler)
 	router.POST("/sandbox/attach", ApplyFromSandboxHandler)
+
+	router.GET("/stats", StatsHandler)
 
 	addr := os.Getenv("KINU_BIND")
 	if len(addr) == 0 {

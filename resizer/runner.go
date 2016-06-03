@@ -21,7 +21,7 @@ type ResizeResult struct {
 }
 
 var (
-	isResizeWorkerMode bool
+	IsWorkerMode bool
 
 	ResizeWorkerSize               int
 	ResizeWorkerWaitBufferNum      int
@@ -37,7 +37,7 @@ const (
 )
 
 func Run(image []byte, option *ResizeOption) (resizedImage []byte, err error) {
-	if !isResizeWorkerMode {
+	if !IsWorkerMode {
 		result := Resize(image, option)
 		return result.image, result.err
 	}
@@ -52,13 +52,17 @@ func Run(image []byte, option *ResizeOption) (resizedImage []byte, err error) {
 	}
 }
 
+func RequestPayloadLen() int {
+	return len(requestPayload)
+}
+
 func CanResizeRequest() bool {
 	return len(requestPayload) < ResizeRequestPayloadSize
 }
 
 func init() {
-	isResizeWorkerMode = (len(os.Getenv("KINU_RESIZE_WORKER_MODE")) != 0)
-	if !isResizeWorkerMode {
+	IsWorkerMode = (len(os.Getenv("KINU_RESIZE_WORKER_MODE")) != 0)
+	if !IsWorkerMode {
 		return
 	}
 
