@@ -132,7 +132,23 @@ now writing
 
 ### Environment variables
 
-now writing
+| name                           | required | default value               | valid value type                                                                      | note                                                                               |
+| ------------------------------ | -------- | --------------------------- | ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| KINU_BIND                      | ☓        | 127.0.0.0:80                | IP:PORT / unix domain socket path / Einhorn(einhorn@[num]) / FileDescripter(fd@[num]) | Compliance with the specifications of the goji/bind package.                       |
+| KINU_DEBUG                     | ☓        | none                        | true                                                                                  | enable pprof                                                                       |
+| KINU_RESIZE_ENGINE             | ◯        | none                        | ImageMagick                                                                           |                                                                                    |
+| KINU_LOG_LEVEL                 | ◯        | none                        | panic / fatal / error / warning / info / debug                                        |                                                                                    |
+| KINU_LOG_FORMAT                | ☓        | text                        | ltsv / json / text                                                                    |                                                                                    |
+| KINU_RESIZE_WORKER_MODE        | ☓        | none                        | true                                                                                  |                                                                                    |
+| KINU_RESIZE_WORKER_MAX_SIZE    | ☓        | cpu num * 10                | Integer                                                                               |                                                                                    |
+| KINU_RESIZE_WORKER_WAIT_BUFFER | ☓        | KINU_RESIZE_WORKER_SIZE * 3 | Integer                                                                               |                                                                                    |
+| KINU_STORAGE_TYPE              | ◯        | none                        | File / S3                                                                             |                                                                                    |
+| KINU_FILE_DIRECTORY            | ☓        | none                        | directory path                                                                        | When the `File` has been set in a `KINU_STORAGE_TYPE`\ you must set this variable. |
+| KINU_S3_REGION                 | ☓        | none                        | AWS Region                                                                            | When the `S3` has been set in a `KINU_STORAGE_TYPE`\ you must set this variable.   |
+| KINU_S3_BUCKET                 | ☓        | none                        | Amazon S3 bucket                                                                      | When the `S3` has been set in a `KINU_STORAGE_TYPE`\ you must set this variable.   |
+| KINU_S3_BUCKET_BASE_PATH       | ☓        | none                        |                                                                                       |                                                                                    |
+| AWS_ACCESS_KEY_ID              | △        | none                        |                                                                                       | Compliance with the specifications of the aws-sdk-go package.                      |
+| AWS_SECRET_ACCESS_KEY          | △        | none                        |                                                                                       | Compliance with the specifications of the aws-sdk-go package.                      |
 
 ### Directory structure of the image storage.
 
