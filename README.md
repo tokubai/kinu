@@ -134,7 +134,7 @@ now writing
 
 now writing
 
-## Directory specifications of the image storage.
+### Directory structure of the image storage.
 
 now writing
 
