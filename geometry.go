@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/TakatoshiMaeda/kinu/resizer"
-	"regexp"
 	"strconv"
 	"strings"
 )
@@ -47,14 +46,6 @@ const (
 	GEO_ORIGINAL
 	GEO_MIDDLE
 )
-
-var (
-	manualCropRegexp *regexp.Regexp
-)
-
-func init() {
-	manualCropRegexp = regexp.MustCompile(`(\d+)_(\d+)_(\d+)_(\d+)_(\d+)`)
-}
 
 func ParseGeometry(geo string) (*Geometry, error) {
 	conditions := strings.Split(geo, ",")
