@@ -49,7 +49,7 @@ func (c *CoodinatesCalculator) Resize() (coodinates *Coodinates) {
 }
 
 func (c *CoodinatesCalculator) AutoCrop() (coodinates *Coodinates) {
-	coodinates = &Coodinates{CropHeight: c.Height, CropWidth: c.Width, CropFirst: false}
+	coodinates = &Coodinates{CropHeight: c.Height, CropWidth: c.Width}
 
 	heightScaleRatio := float64(c.Height) / float64(c.ImageHeight)
 	widthScaleRatio := float64(c.Width) / float64(c.ImageWidth)
@@ -69,7 +69,7 @@ func (c *CoodinatesCalculator) AutoCrop() (coodinates *Coodinates) {
 }
 
 func (c *CoodinatesCalculator) ManualCrop(option *ResizeOption) (coodinates *Coodinates) {
-	coodinates = &Coodinates{CropFirst: true}
+	coodinates = &Coodinates{}
 
 	assumeRatio := float64(c.ImageWidth) / float64(option.AssumptionWidth)
 
@@ -96,7 +96,6 @@ func (c *CoodinatesCalculator) Calc(option *ResizeOption) (coodinates *Coodinate
 type Coodinates struct {
 	ResizeWidth, ResizeHeight int
 	CropWidth, CropHeight     int
-	CropFirst                 bool
 	WidthOffset, HeightOffset int
 }
 
@@ -109,10 +108,9 @@ func (c *Coodinates) CanCrop() bool {
 }
 
 func (c *Coodinates) ToString() string {
-	return fmt.Sprintf("ResizeWidth: %d, ResizeHeight: %d, CropFirst: %t, CropWidth: %d, CropHeight: %d, WidthOffset: %d HeightOffset: %d",
+	return fmt.Sprintf("ResizeWidth: %d, ResizeHeight: %d, CropWidth: %d, CropHeight: %d, WidthOffset: %d HeightOffset: %d",
 		c.ResizeWidth,
 		c.ResizeHeight,
-		c.CropFirst,
 		c.CropWidth,
 		c.CropHeight,
 		c.WidthOffset,
