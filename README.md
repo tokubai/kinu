@@ -1,7 +1,6 @@
 # Kinu
 
-Kinu is the server that resizing images.  
-Inspired by [cookpad's](https://cookpad.com/) image server [Tofu](http://www.slideshare.net/mirakui/ss-8150494).
+Kinu is the server that resizing images. Inspired by [cookpad's](https://cookpad.com/) image server [Tofu](http://www.slideshare.net/mirakui/ss-8150494).
 
 ## Status
 
