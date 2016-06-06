@@ -39,6 +39,11 @@ const (
 	GEO_HEIGHT
 	GEO_QUALITY
 	GEO_AUTO_CROP
+	GEO_WIDTH_OFFSET
+	GEO_HEIGHT_OFFSET
+	GEO_CROP_WIDTH
+	GEO_CROP_HEIGHT
+	GEO_ASSUMPTION_WIDTH
 	GEO_ORIGINAL
 	GEO_MIDDLE
 )
@@ -106,18 +111,60 @@ func ParseGeometry(geo string) (*Geometry, error) {
 			pos = GEO_AUTO_CROP
 			if cond[1] == "true" {
 				needsAutoCrop = true
-			} else if manualCropRegexp.Match([]byte(cond[1])) {
+			} else if cond[1] == "manual" {
 				needsManualCrop = true
-				result := manualCropRegexp.FindAllStringSubmatch(cond[1], -1)
-				if result != nil {
-					cropWidthOffset, _ = strconv.Atoi(result[0][1])
-					cropHeightOffset, _ = strconv.Atoi(result[0][2])
-					cropWidth, _ = strconv.Atoi(result[0][3])
-					cropHeight, _ = strconv.Atoi(result[0][4])
-					assumptionWidth, _ = strconv.Atoi(result[0][5])
-				}
 			} else {
-				needsAutoCrop = false
+				return nil, &ErrInvalidGeometryOrderRequest{Message: "geometry c must be true or manual."}
+			}
+		case "wo":
+			if pos >= GEO_WIDTH_OFFSET {
+				return nil, &ErrInvalidGeometryOrderRequest{Message: "geometry ow must be fixed order."}
+			}
+			pos = GEO_WIDTH_OFFSET
+			if w, err := strconv.Atoi(cond[1]); err != nil {
+				return nil, &ErrInvalidRequest{Message: "geometry ow is must be numeric."}
+			} else {
+				cropWidthOffset = w
+			}
+		case "ho":
+			if pos >= GEO_HEIGHT_OFFSET {
+				return nil, &ErrInvalidGeometryOrderRequest{Message: "geometry oh must be fixed order."}
+			}
+			pos = GEO_HEIGHT_OFFSET
+			if w, err := strconv.Atoi(cond[1]); err != nil {
+				return nil, &ErrInvalidRequest{Message: "geometry oh is must be numeric."}
+			} else {
+				cropHeightOffset = w
+			}
+		case "cw":
+			if pos >= GEO_CROP_WIDTH {
+				return nil, &ErrInvalidGeometryOrderRequest{Message: "geometry cw must be fixed order."}
+			}
+			pos = GEO_CROP_WIDTH
+			if w, err := strconv.Atoi(cond[1]); err != nil {
+				return nil, &ErrInvalidRequest{Message: "geometry cw is must be numeric."}
+			} else {
+				cropWidth = w
+			}
+		case "ch":
+			if pos >= GEO_CROP_HEIGHT {
+				return nil, &ErrInvalidGeometryOrderRequest{Message: "geometry ch must be fixed order."}
+			}
+			pos = GEO_CROP_HEIGHT
+			if w, err := strconv.Atoi(cond[1]); err != nil {
+				return nil, &ErrInvalidRequest{Message: "geometry ch is must be numeric."}
+			} else {
+				cropHeight = w
+			}
+		case "as":
+			if pos >= GEO_ASSUMPTION_WIDTH {
+				return nil, &ErrInvalidGeometryOrderRequest{Message: "geometry as must be fixed order."}
+			}
+			pos = GEO_ASSUMPTION_WIDTH
+			if w, err := strconv.Atoi(cond[1]); err != nil {
+				return nil, &ErrInvalidRequest{Message: "geometry as is must be numeric."}
+			} else {
+				assumptionWidth = w
 			}
 		case "o":
 			if pos >= GEO_ORIGINAL {
@@ -152,6 +199,10 @@ func ParseGeometry(geo string) (*Geometry, error) {
 
 	if len(middleImageSize) == 0 && width == 0 && height == 0 && needsOriginal == false {
 		return nil, &ErrInvalidRequest{Message: "must specify width or height when not original mode."}
+	}
+
+	if needsManualCrop && (cropWidth == 0 || cropHeight == 0 || assumptionWidth == 0) {
+		return nil, &ErrInvalidRequest{Message: "must specify crop width, crop height and assumption width when manual crop mode."}
 	}
 
 	if quality == 0 {

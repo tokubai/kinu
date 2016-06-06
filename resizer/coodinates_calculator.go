@@ -95,7 +95,7 @@ func (c *CoodinatesCalculator) Calc(option *ResizeOption) (coodinates *Coodinate
 
 type Coodinates struct {
 	ResizeWidth, ResizeHeight int
-	CropWidth, CropHeight     int
+	CropWidth,   CropHeight   int
 	WidthOffset, HeightOffset int
 }
 
