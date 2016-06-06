@@ -112,50 +112,50 @@ func ParseGeometry(geo string) (*Geometry, error) {
 				return nil, &ErrInvalidGeometryOrderRequest{Message: "geometry ow must be fixed order."}
 			}
 			pos = GEO_WIDTH_OFFSET
-			if w, err := strconv.Atoi(cond[1]); err != nil {
+			if wo, err := strconv.Atoi(cond[1]); err != nil {
 				return nil, &ErrInvalidRequest{Message: "geometry ow is must be numeric."}
 			} else {
-				cropWidthOffset = w
+				cropWidthOffset = wo
 			}
 		case "ho":
 			if pos >= GEO_HEIGHT_OFFSET {
 				return nil, &ErrInvalidGeometryOrderRequest{Message: "geometry oh must be fixed order."}
 			}
 			pos = GEO_HEIGHT_OFFSET
-			if w, err := strconv.Atoi(cond[1]); err != nil {
+			if ho, err := strconv.Atoi(cond[1]); err != nil {
 				return nil, &ErrInvalidRequest{Message: "geometry oh is must be numeric."}
 			} else {
-				cropHeightOffset = w
+				cropHeightOffset = ho
 			}
 		case "cw":
 			if pos >= GEO_CROP_WIDTH {
 				return nil, &ErrInvalidGeometryOrderRequest{Message: "geometry cw must be fixed order."}
 			}
 			pos = GEO_CROP_WIDTH
-			if w, err := strconv.Atoi(cond[1]); err != nil {
+			if cw, err := strconv.Atoi(cond[1]); err != nil {
 				return nil, &ErrInvalidRequest{Message: "geometry cw is must be numeric."}
 			} else {
-				cropWidth = w
+				cropWidth = cw
 			}
 		case "ch":
 			if pos >= GEO_CROP_HEIGHT {
 				return nil, &ErrInvalidGeometryOrderRequest{Message: "geometry ch must be fixed order."}
 			}
 			pos = GEO_CROP_HEIGHT
-			if w, err := strconv.Atoi(cond[1]); err != nil {
+			if ch, err := strconv.Atoi(cond[1]); err != nil {
 				return nil, &ErrInvalidRequest{Message: "geometry ch is must be numeric."}
 			} else {
-				cropHeight = w
+				cropHeight = ch
 			}
-		case "as":
+		case "aw":
 			if pos >= GEO_ASSUMPTION_WIDTH {
 				return nil, &ErrInvalidGeometryOrderRequest{Message: "geometry as must be fixed order."}
 			}
 			pos = GEO_ASSUMPTION_WIDTH
-			if w, err := strconv.Atoi(cond[1]); err != nil {
+			if aw, err := strconv.Atoi(cond[1]); err != nil {
 				return nil, &ErrInvalidRequest{Message: "geometry as is must be numeric."}
 			} else {
-				assumptionWidth = w
+				assumptionWidth = aw
 			}
 		case "o":
 			if pos >= GEO_ORIGINAL {
