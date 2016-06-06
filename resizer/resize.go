@@ -7,18 +7,38 @@ import (
 )
 
 func Resize(image []byte, option *ResizeOption) (result *ResizeResult) {
+	if option.Quality == 0 {
+		option.Quality = DEFAULT_QUALITY
+	}
+
+	if option.NeedsManualCrop {
+		return resizeManualCrop(image, option)
+	}
+	return resize(image, option)
+}
+
+func resize(image []byte, option *ResizeOption) (result *ResizeResult) {
 	calculator, err := NewCoodinatesCalculator(option)
 	if err != nil {
 		return &ResizeResult{err: logger.ErrorDebug(err)}
 	}
 
-	if option.Quality == 0 {
-		option.Quality = DEFAULT_QUALITY
-	}
-
 	engine, err := engine.New(image)
 	if err != nil {
 		return &ResizeResult{err: logger.ErrorDebug(err)}
+	}
+
+	var coodinates *Coodinates
+	if option.HasSizeHint() {
+		calculator.SetImageSize(option.SizeHintWidth, option.SizeHintHeight)
+		coodinates = calculator.Calc(option)
+		engine.SetSizeHint(coodinates.ResizeWidth, coodinates.ResizeHeight)
+		logger.WithFields(logrus.Fields{
+			"width_size_hint":  coodinates.ResizeWidth,
+			"height_size_hint": coodinates.ResizeHeight,
+		}).Debug("size hint")
+	} else {
+		logger.Debug("not set size hint")
 	}
 
 	err = engine.Open()
@@ -28,18 +48,43 @@ func Resize(image []byte, option *ResizeOption) (result *ResizeResult) {
 
 	defer engine.Close()
 
-	calculator.SetImageSize(engine.GetImageWidth(), engine.GetImageHeight())
-	coodinates := calculator.Calc(option)
+	if coodinates == nil {
+		calculator.SetImageSize(engine.GetImageWidth(), engine.GetImageHeight())
+		coodinates = calculator.Calc(option)
+	}
 
-	if coodinates.CropFirst {
+	err = engine.Resize(coodinates.ResizeWidth, coodinates.ResizeHeight)
+	if err != nil {
+		return &ResizeResult{err: logger.ErrorDebug(err)}
+	}
+
+	if coodinates.CanCrop() {
 		err = engine.Crop(coodinates.CropWidth, coodinates.CropHeight, coodinates.WidthOffset, coodinates.HeightOffset)
 		if err != nil {
 			return &ResizeResult{err: logger.ErrorDebug(err)}
 		}
 	}
 
+	resultImage, err := engine.Generate()
+	return &ResizeResult{image: resultImage, err: err}
+}
+
+func resizeManualCrop(image []byte, option *ResizeOption) (result *ResizeResult) {
+	calculator, err := NewCoodinatesCalculator(option)
+	if err != nil {
+		return &ResizeResult{err: logger.ErrorDebug(err)}
+	}
+
+	engine, err := engine.New(image)
+	if err != nil {
+		return &ResizeResult{err: logger.ErrorDebug(err)}
+	}
+
+	var coodinates *Coodinates
 	if option.HasSizeHint() {
-		engine.SetSizeHint(coodinates.ResizeWidth, coodinates.ResizeHeight)
+		calculator.SetImageSize(option.SizeHintWidth, option.SizeHintHeight)
+		coodinates = calculator.Calc(option)
+		engine.SetSizeHint(option.SizeHintWidth, option.SizeHintHeight)
 		logger.WithFields(logrus.Fields{
 			"width_size_hint":  coodinates.ResizeWidth,
 			"height_size_hint": coodinates.ResizeHeight,
@@ -47,16 +92,27 @@ func Resize(image []byte, option *ResizeOption) (result *ResizeResult) {
 	} else {
 		logger.Debug("not set size hint")
 	}
-	err = engine.Resize(coodinates.ResizeWidth, coodinates.ResizeHeight)
+
+	err = engine.Open()
 	if err != nil {
 		return &ResizeResult{err: logger.ErrorDebug(err)}
 	}
 
-	if !coodinates.CropFirst && coodinates.CanCrop() {
-		err = engine.Crop(coodinates.CropWidth, coodinates.CropHeight, coodinates.WidthOffset, coodinates.HeightOffset)
-		if err != nil {
-			return &ResizeResult{err: logger.ErrorDebug(err)}
-		}
+	defer engine.Close()
+
+	if coodinates == nil {
+		calculator.SetImageSize(engine.GetImageWidth(), engine.GetImageHeight())
+		coodinates = calculator.Calc(option)
+	}
+
+	err = engine.Crop(coodinates.CropWidth, coodinates.CropHeight, coodinates.WidthOffset, coodinates.HeightOffset)
+	if err != nil {
+		return &ResizeResult{err: logger.ErrorDebug(err)}
+	}
+
+	err = engine.Resize(coodinates.ResizeWidth, coodinates.ResizeHeight)
+	if err != nil {
+		return &ResizeResult{err: logger.ErrorDebug(err)}
 	}
 
 	resultImage, err := engine.Generate()
