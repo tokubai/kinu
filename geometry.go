@@ -38,6 +38,7 @@ const (
 	GEO_HEIGHT
 	GEO_QUALITY
 	GEO_AUTO_CROP
+	GEO_MANUAL_CROP
 	GEO_WIDTH_OFFSET
 	GEO_HEIGHT_OFFSET
 	GEO_CROP_WIDTH
@@ -102,10 +103,18 @@ func ParseGeometry(geo string) (*Geometry, error) {
 			pos = GEO_AUTO_CROP
 			if cond[1] == "true" {
 				needsAutoCrop = true
-			} else if cond[1] == "manual" {
-				needsManualCrop = true
 			} else {
 				return nil, &ErrInvalidGeometryOrderRequest{Message: "geometry c must be true or manual."}
+			}
+		case "mc":
+			if pos >= GEO_MANUAL_CROP {
+				return nil, &ErrInvalidGeometryOrderRequest{Message: "geometry mc must be fixed order."}
+			}
+			pos = GEO_MANUAL_CROP
+			if cond[1] == "true" {
+				needsManualCrop = true
+			} else {
+				return nil, &ErrInvalidGeometryOrderRequest{Message: "geometry mc must be true or manual."}
 			}
 		case "wo":
 			if pos >= GEO_WIDTH_OFFSET {
