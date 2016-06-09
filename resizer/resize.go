@@ -7,13 +7,13 @@ import (
 )
 
 func Resize(image []byte, option *ResizeOption) (result *ResizeResult) {
-	if option.Quality == 0 {
-		option.Quality = DEFAULT_QUALITY
-	}
-
 	calculator, err := NewCoodinatesCalculator(option)
 	if err != nil {
 		return &ResizeResult{err: logger.ErrorDebug(err)}
+	}
+
+	if option.Quality == 0 {
+		option.Quality = DEFAULT_QUALITY
 	}
 
 	engine, err := engine.New(image)
