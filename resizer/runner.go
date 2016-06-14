@@ -122,10 +122,16 @@ func worker(id int, requests <-chan *ResizeRequest) {
 }
 
 type ResizeOption struct {
-	Width         int
-	Height        int
-	NeedsAutoCrop bool
-	Quality       int
+	Width            int
+	Height           int
+	NeedsAutoCrop    bool
+	NeedsManualCrop  bool
+	CropWidthOffset  int
+	CropHeightOffset int
+	CropWidth        int
+	CropHeight       int
+	AssumptionWidth  int
+	Quality          int
 
 	SizeHintWidth  int
 	SizeHintHeight int

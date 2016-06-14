@@ -22,7 +22,7 @@ func Resize(image []byte, option *ResizeOption) (result *ResizeResult) {
 	}
 
 	var coodinates *Coodinates
-	if option.HasSizeHint() {
+	if option.HasSizeHint() && !option.NeedsManualCrop {
 		calculator.SetImageSize(option.SizeHintWidth, option.SizeHintHeight)
 		coodinates = calculator.Calc(option)
 		engine.SetSizeHint(coodinates.ResizeWidth, coodinates.ResizeHeight)
@@ -46,15 +46,28 @@ func Resize(image []byte, option *ResizeOption) (result *ResizeResult) {
 		coodinates = calculator.Calc(option)
 	}
 
-	err = engine.Resize(coodinates.ResizeWidth, coodinates.ResizeHeight)
-	if err != nil {
-		return &ResizeResult{err: logger.ErrorDebug(err)}
-	}
-
-	if coodinates.CanCrop() {
+	if option.NeedsManualCrop {
+		// crop first then resize for manual cropping.
 		err = engine.Crop(coodinates.CropWidth, coodinates.CropHeight, coodinates.WidthOffset, coodinates.HeightOffset)
 		if err != nil {
 			return &ResizeResult{err: logger.ErrorDebug(err)}
+		}
+
+		err = engine.Resize(coodinates.ResizeWidth, coodinates.ResizeHeight)
+		if err != nil {
+			return &ResizeResult{err: logger.ErrorDebug(err)}
+		}
+	} else {
+		err = engine.Resize(coodinates.ResizeWidth, coodinates.ResizeHeight)
+		if err != nil {
+			return &ResizeResult{err: logger.ErrorDebug(err)}
+		}
+
+		if coodinates.CanCrop() {
+			err = engine.Crop(coodinates.CropWidth, coodinates.CropHeight, coodinates.WidthOffset, coodinates.HeightOffset)
+			if err != nil {
+				return &ResizeResult{err: logger.ErrorDebug(err)}
+			}
 		}
 	}
 
