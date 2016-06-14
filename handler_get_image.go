@@ -72,8 +72,7 @@ func GetImageHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 	}
 	logger.TrackResult("resize image", resizeStartTime)
 
-	ext := ExtractExtension(ps.ByName("filename"))
-	if ext == "data" {
+	if request.Extension == "data" {
 		RespondDataURI(w, resizedImage)
 	} else {
 		RespondImage(w, resizedImage)
