@@ -12,7 +12,7 @@ type ImageGetRequest struct {
 	Category  string
 	Id        string
 	Geometry  *Geometry
-	extension string
+	Extension string
 }
 
 func ExtractId(filename string) string {
@@ -43,6 +43,11 @@ func NewImageGetRequest(ps httprouter.Params) (*ImageGetRequest, error) {
 		return nil, &ErrInvalidRequest{Message: "required filename."}
 	}
 
+	ext := ExtractExtension(ps.ByName("filename"))
+	if len(ext) == 0 {
+		return nil, &ErrInvalidRequest{Message: "required extension."}
+	}
+
 	id := ExtractId(filename)
 	if len(id) == 0 {
 		return nil, &ErrInvalidRequest{Message: "invalid filename"}
@@ -59,5 +64,5 @@ func NewImageGetRequest(ps httprouter.Params) (*ImageGetRequest, error) {
 		"image_id":   id,
 	}).Debug("parse success image get request.")
 
-	return &ImageGetRequest{Category: imageType, Id: id, Geometry: geometry}, nil
+	return &ImageGetRequest{Category: imageType, Id: id, Geometry: geometry, Extension: ext}, nil
 }

@@ -72,7 +72,11 @@ func GetImageHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 	}
 	logger.TrackResult("resize image", resizeStartTime)
 
-	RespondImage(w, resizedImage)
+	if request.Extension == "data" {
+		RespondDataURI(w, resizedImage)
+	} else {
+		RespondImage(w, resizedImage)
+	}
 
 	logger.WithFields(logrus.Fields{
 		"path":   r.URL.Path,

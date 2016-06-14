@@ -7,8 +7,10 @@ import (
 	"github.com/TakatoshiMaeda/kinu/engine"
 	"github.com/TakatoshiMaeda/kinu/logger"
 	"github.com/julienschmidt/httprouter"
+	"github.com/vincent-petithory/dataurl"
 	"github.com/zenazn/goji/bind"
 	"github.com/zenazn/goji/graceful"
+	"io"
 	"net/http"
 	"net/http/pprof"
 	"os"
@@ -96,6 +98,10 @@ func HandlePprof(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 func SetContentType(w http.ResponseWriter, filename string) error {
 	ext := ExtractExtension(filepath.Ext(filename))
+	if ext == "data" {
+		w.Header().Set("Content-Type", "text/plain")
+		return nil
+	}
 	if IsValidImageExt(ext) {
 		w.Header().Set("Content-Type", "image/"+ext)
 		return nil
@@ -142,4 +148,8 @@ func RespondJson(w http.ResponseWriter, json []byte) {
 
 func RespondImage(w http.ResponseWriter, bytes []byte) {
 	w.Write(bytes)
+}
+
+func RespondDataURI(w http.ResponseWriter, bytes []byte) {
+	io.WriteString(w, dataurl.EncodeBytes(bytes))
 }
