@@ -155,7 +155,7 @@ now writing
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/TakatoshiMaeda/kinu
+Bug reports and pull requests are welcome on GitHub at https://github.com/tokubai/kinu
 
 ## Thanks
 
