@@ -20,7 +20,7 @@ go get github.com/TakatoshiMaeda/kinu
 or 
 
 ```
-docker pull takatoshimaeda/kinu:1.0.0alpha1
+docker pull takatoshimaeda/kinu:1.0.0.alpha1
 ```
 
 ## Startup
