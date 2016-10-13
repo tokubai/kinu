@@ -133,7 +133,7 @@ now writing
 
 | name                           | required | default value               | valid value type                                                                      | note                                                                               |
 | ------------------------------ | -------- | --------------------------- | ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| KINU_BIND                      | ☓        | 127.0.0.0:80                | IP:PORT / unix domain socket path / Einhorn(einhorn@[num]) / FileDescripter(fd@[num]) | Compliance with the specifications of the goji/bind package.                       |
+| KINU_BIND                      | ☓        | 127.0.0.1:80                | IP:PORT / unix domain socket path / Einhorn(einhorn@[num]) / FileDescripter(fd@[num]) | Compliance with the specifications of the goji/bind package.                       |
 | KINU_DEBUG                     | ☓        | none                        | true                                                                                  | enable pprof                                                                       |
 | KINU_RESIZE_ENGINE             | ◯        | none                        | ImageMagick                                                                           |                                                                                    |
 | KINU_LOG_LEVEL                 | ◯        | none                        | panic / fatal / error / warning / info / debug                                        |                                                                                    |
