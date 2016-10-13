@@ -8,7 +8,7 @@ RUN env DEBIAN_FRONTEND=noninteractive apt-get update && \
     apt-get install -y libwebp-dev git wget && \
     rm -rf /var/lib/apt/lists/*
 
-ENV IMAGEMAGICK_VERSION 6.9.4-6
+ENV IMAGEMAGICK_VERSION 6.9.6-2
 ENV LD_LIBRARY_PATH /usr/local/lib
 
 RUN mkdir -p /tmp/imagemagick && \
