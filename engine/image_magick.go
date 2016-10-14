@@ -62,5 +62,16 @@ func (e *ImageMagickEngine) Crop(width int, height int, startX int, startY int) 
 }
 
 func (e *ImageMagickEngine) Generate() ([]byte, error) {
+	orientation := e.mw.GetImageOrientation()
+	if orientation != imagick.ORIENTATION_UNDEFINED && orientation != imagick.ORIENTATION_TOP_LEFT {
+		err := e.mw.AutoOrientImage()
+		if err != nil {
+			return nil, err
+		}
+	}
+	err := e.mw.StripImage()
+	if err != nil {
+		return nil, err
+	}
 	return e.mw.GetImageBlob(), nil
 }
