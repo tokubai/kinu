@@ -14,7 +14,7 @@ It's development now for first alpha release.
 
 ```
 # Please to Install the ImageMagick before this
-go get github.com/TakatoshiMaeda/kinu
+go get github.com/tokubai/kinu
 ```
 
 or 
@@ -63,7 +63,7 @@ $ curl http://localhost/version
 
 ```ruby
 require 'kinu'
-Kinu::Resource.new(:foods, 1).upload('/path/to/image.jpg')
+Kinu::Resource.new(:foods, 1).upload(open('/path/to/image.jpg'))
 ```
 
 #### curl
@@ -95,7 +95,7 @@ $ curl http://localhost/images/foods/w=280,h=300/1.jpg
 
 ```ruby
 require 'kinu'
-Kinu::Sandbox.upload('/path/to/image.jpg') #<Kinu::Sandbox:0x007fdf92bdc490 @id="db4f1509-e2f5-40a7-9944-a6b0024f2a24", @name="__sandbox__">
+Kinu::Sandbox.upload(open('/path/to/image.jpg')) #<Kinu::Sandbox:0x007fdf92bdc490 @id="db4f1509-e2f5-40a7-9944-a6b0024f2a24", @name="__sandbox__">
 ```
 
 #### curl
@@ -110,7 +110,7 @@ $ curl -X POST -F image=@/path/to/image http://localhost/sandbox
 
 ```ruby
 require 'kinu'
-Kinu::Sandbox.upload('/path/to/image.jpg').attach_to(:foods, 1) #<Kinu::Resource:0x007fdf92b44a00 @id="1", @name="foods">
+Kinu::Sandbox.upload(open('/path/to/image.jpg')).attach_to(:foods, 1) #<Kinu::Resource:0x007fdf92b44a00 @id="1", @name="foods">
 ```
 
 #### curl
