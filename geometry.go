@@ -118,21 +118,21 @@ func ParseGeometry(geo string) (*Geometry, error) {
 			}
 		case "wo":
 			if pos >= GEO_WIDTH_OFFSET {
-				return nil, &ErrInvalidGeometryOrderRequest{Message: "geometry ow must be fixed order."}
+				return nil, &ErrInvalidGeometryOrderRequest{Message: "geometry wo must be fixed order."}
 			}
 			pos = GEO_WIDTH_OFFSET
 			if wo, err := strconv.Atoi(cond[1]); err != nil {
-				return nil, &ErrInvalidRequest{Message: "geometry ow is must be numeric."}
+				return nil, &ErrInvalidRequest{Message: "geometry wo is must be numeric."}
 			} else {
 				cropWidthOffset = wo
 			}
 		case "ho":
 			if pos >= GEO_HEIGHT_OFFSET {
-				return nil, &ErrInvalidGeometryOrderRequest{Message: "geometry oh must be fixed order."}
+				return nil, &ErrInvalidGeometryOrderRequest{Message: "geometry ho must be fixed order."}
 			}
 			pos = GEO_HEIGHT_OFFSET
 			if ho, err := strconv.Atoi(cond[1]); err != nil {
-				return nil, &ErrInvalidRequest{Message: "geometry oh is must be numeric."}
+				return nil, &ErrInvalidRequest{Message: "geometry ho is must be numeric."}
 			} else {
 				cropHeightOffset = ho
 			}
