@@ -2,7 +2,7 @@ package storage
 
 import (
 	"github.com/Sirupsen/logrus"
-	"github.com/TakatoshiMaeda/kinu/logger"
+	"github.com/tokubai/kinu/logger"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	awsSession "github.com/aws/aws-sdk-go/aws/session"

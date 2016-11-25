@@ -2,8 +2,8 @@ package resizer
 
 import (
 	"github.com/Sirupsen/logrus"
-	"github.com/TakatoshiMaeda/kinu/engine"
-	"github.com/TakatoshiMaeda/kinu/logger"
+	"github.com/tokubai/kinu/engine"
+	"github.com/tokubai/kinu/logger"
 )
 
 func Resize(image []byte, option *ResizeOption) (result *ResizeResult) {

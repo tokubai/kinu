@@ -2,7 +2,7 @@ package engine
 
 import (
 	"fmt"
-	"github.com/TakatoshiMaeda/kinu/logger"
+	"github.com/tokubai/kinu/logger"
 	"gopkg.in/gographics/imagick.v2/imagick"
 )
 

@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/TakatoshiMaeda/kinu/resizer"
+	"github.com/tokubai/kinu/resizer"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 )

@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/Sirupsen/logrus"
-	"github.com/TakatoshiMaeda/kinu/logger"
+	"github.com/tokubai/kinu/logger"
 	"github.com/julienschmidt/httprouter"
 	"github.com/satori/go.uuid"
 	"net/http"

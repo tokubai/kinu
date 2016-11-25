@@ -3,7 +3,7 @@ package resizer
 import (
 	"errors"
 	"github.com/Sirupsen/logrus"
-	"github.com/TakatoshiMaeda/kinu/logger"
+	"github.com/tokubai/kinu/logger"
 	"os"
 	"runtime"
 	"strconv"

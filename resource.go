@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/Sirupsen/logrus"
-	"github.com/TakatoshiMaeda/kinu/logger"
-	"github.com/TakatoshiMaeda/kinu/storage"
+	"github.com/tokubai/kinu/logger"
+	"github.com/tokubai/kinu/storage"
 	"io"
 	"io/ioutil"
 	"net/http"

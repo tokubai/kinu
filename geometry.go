@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/TakatoshiMaeda/kinu/resizer"
+	"github.com/tokubai/kinu/resizer"
 	"strconv"
 	"strings"
 )

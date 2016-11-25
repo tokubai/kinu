@@ -3,7 +3,7 @@ package storage
 import (
 	"encoding/json"
 	"github.com/Sirupsen/logrus"
-	"github.com/TakatoshiMaeda/kinu/logger"
+	"github.com/tokubai/kinu/logger"
 	"io"
 	"io/ioutil"
 	"os"

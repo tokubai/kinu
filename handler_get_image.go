@@ -2,9 +2,9 @@ package main
 
 import (
 	"github.com/Sirupsen/logrus"
-	"github.com/TakatoshiMaeda/kinu/logger"
-	"github.com/TakatoshiMaeda/kinu/resizer"
-	"github.com/TakatoshiMaeda/kinu/storage"
+	"github.com/tokubai/kinu/logger"
+	"github.com/tokubai/kinu/resizer"
+	"github.com/tokubai/kinu/storage"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"time"

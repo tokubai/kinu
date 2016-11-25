@@ -3,7 +3,7 @@ package engine
 import (
 	"errors"
 	"github.com/Sirupsen/logrus"
-	"github.com/TakatoshiMaeda/kinu/logger"
+	"github.com/tokubai/kinu/logger"
 	"gopkg.in/gographics/imagick.v2/imagick"
 	"os"
 )
