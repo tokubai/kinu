@@ -2,10 +2,10 @@ package main
 
 import ()
 import (
-	"github.com/TakatoshiMaeda/kinu/engine"
-	"github.com/TakatoshiMaeda/kinu/logger"
-	"github.com/TakatoshiMaeda/kinu/resizer"
-	"github.com/TakatoshiMaeda/kinu/storage"
+	"github.com/tokubai/kinu/engine"
+	"github.com/tokubai/kinu/logger"
+	"github.com/tokubai/kinu/resizer"
+	"github.com/tokubai/kinu/storage"
 	"strconv"
 	"sync"
 )

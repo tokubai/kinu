@@ -5,7 +5,7 @@ import (
 	"io"
 	"os"
 	"github.com/Sirupsen/logrus"
-	"github.com/TakatoshiMaeda/kinu/logger"
+	"github.com/tokubai/kinu/logger"
 )
 
 type Storage interface {
