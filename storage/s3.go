@@ -130,7 +130,7 @@ func (s *S3Storage) PutFromBlob(key string, image []byte, metadata map[string]st
 func (s *S3Storage) Put(key string, imageFile io.ReadSeeker, metadata map[string]string) error {
 	putMetadata := make(map[string]*string, 0)
 	for k, v := range metadata {
-		putMetadata[k] = &v
+		putMetadata[k] = aws.String(v)
 	}
 
 	_, err := s.client.PutObject(&s3.PutObjectInput{
