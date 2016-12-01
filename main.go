@@ -20,7 +20,7 @@ import (
 
 const (
 	DEFAULT_BIND = "127.0.0.1:8080"
-	VERSION      = "1.0.0.alpha2"
+	VERSION      = "1.0.0.alpha3"
 )
 
 var (
