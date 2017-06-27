@@ -122,7 +122,10 @@ func (s *S3Storage) PutFromBlob(key string, image []byte, metadata map[string]st
 		return logger.ErrorDebug(err)
 	}
 
-	defer tmpfile.Close()
+	defer func() {
+		tmpfile.Close()
+		os.Remove(tmpfile.Name())
+	}()
 
 	return s.Put(key, tmpfile, metadata)
 }
