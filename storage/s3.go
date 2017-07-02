@@ -204,7 +204,7 @@ func (s *S3Storage) Move(from string, to string) error {
 	}
 	_, err = s.client.DeleteObject(&s3.DeleteObjectInput{
 		Bucket: aws.String(s.bucket),
-		Key:    aws.String(fromKey),
+		Key:    aws.String(from),
 	})
 
 	if reqerr, ok := err.(awserr.RequestFailure); ok && reqerr.StatusCode() == http.StatusNotFound {
