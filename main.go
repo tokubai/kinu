@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/julienschmidt/httprouter"
 	"github.com/tokubai/kinu/engine"
 	"github.com/tokubai/kinu/logger"
-	"github.com/julienschmidt/httprouter"
 	"github.com/vincent-petithory/dataurl"
 	"github.com/zenazn/goji/bind"
 	"github.com/zenazn/goji/graceful"
@@ -20,7 +20,7 @@ import (
 
 const (
 	DEFAULT_BIND = "127.0.0.1:8080"
-	VERSION      = "1.0.0.alpha3"
+	VERSION      = "1.0.0.alpha4"
 )
 
 var (
