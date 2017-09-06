@@ -45,7 +45,7 @@ $ curl http://localhost:8080/version
 #### docker run
 
 ```
-$ docker run takatoshimaeda/kinu:1.0.0.alpha4
+$ docker run tokubai/kinu:1.0.0.alpha4
 INFO[0000] setup resize engine                           resize_engine_type=ImageMagick
 INFO[0000] setup storage                                 storage_type=File
 INFO[0000] [starting kinu on 0.0.0.0:80]
