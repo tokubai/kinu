@@ -1,28 +1,16 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/Sirupsen/logrus"
-	"github.com/tokubai/kinu/logger"
 	"github.com/julienschmidt/httprouter"
 	"github.com/satori/go.uuid"
-	"net/http"
-	"strconv"
+	"github.com/tokubai/kinu/logger"
+	"github.com/tokubai/kinu/resource"
 )
 
 const SANDBOX_IMAGE_TYPE = "__sandbox__"
-
-type ErrAttachFromSandbox struct {
-	error
-	Errors []error
-}
-
-func (e *ErrAttachFromSandbox) Error() string {
-	messages := "Image attach from sandbox error. cause, "
-	for i, err := range e.Errors {
-		messages = messages + strconv.Itoa(i+1) + ". " + err.Error() + "  "
-	}
-	return messages
-}
 
 func UploadImageToSandboxHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("Content-Type", "application/json")
@@ -37,7 +25,7 @@ func UploadImageToSandboxHandler(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 
-	err = NewResource(SANDBOX_IMAGE_TYPE, imageId).Store(file)
+	err = resource.New(SANDBOX_IMAGE_TYPE, imageId).Store(file)
 	if err != nil {
 		if _, ok := err.(*ErrInvalidRequest); ok {
 			RespondBadRequest(w, err.Error())
@@ -78,7 +66,7 @@ func ApplyFromSandboxHandler(w http.ResponseWriter, r *http.Request, ps httprout
 		return
 	}
 
-	err := NewResource(SANDBOX_IMAGE_TYPE, sandboxId).MoveTo(imageType, imageId)
+	err := resource.New(SANDBOX_IMAGE_TYPE, sandboxId).MoveTo(imageType, imageId)
 
 	if err != nil {
 		RespondInternalServerError(w, err)

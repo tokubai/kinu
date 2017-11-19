@@ -1,13 +1,13 @@
-package main
+package uploader
 
-import ()
 import (
+	"strconv"
+	"sync"
+
 	"github.com/tokubai/kinu/engine"
 	"github.com/tokubai/kinu/logger"
 	"github.com/tokubai/kinu/resizer"
 	"github.com/tokubai/kinu/storage"
-	"strconv"
-	"sync"
 )
 
 type ErrUpload struct {

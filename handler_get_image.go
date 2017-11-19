@@ -1,13 +1,15 @@
 package main
 
 import (
-	"github.com/Sirupsen/logrus"
-	"github.com/tokubai/kinu/logger"
-	"github.com/tokubai/kinu/resizer"
-	"github.com/tokubai/kinu/storage"
-	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"time"
+
+	"github.com/Sirupsen/logrus"
+	"github.com/julienschmidt/httprouter"
+	"github.com/tokubai/kinu/logger"
+	"github.com/tokubai/kinu/resizer"
+	"github.com/tokubai/kinu/resource"
+	"github.com/tokubai/kinu/storage"
 )
 
 func GetImageHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -23,9 +25,9 @@ func GetImageHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 
 	request, err := NewImageGetRequest(ps)
 	if err != nil {
-		if _, ok := err.(*ErrInvalidRequest); ok {
+		if _, ok := err.(*resizer.ErrInvalidGeometry); ok {
 			RespondBadRequest(w, err.Error())
-		} else if _, ok := err.(*ErrInvalidGeometryOrderRequest); ok {
+		} else if _, ok := err.(*resizer.ErrInvalidGeometryOrderRequest); ok {
 			RespondNotFound(w)
 		} else {
 			RespondInternalServerError(w, err)
@@ -33,7 +35,7 @@ func GetImageHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 		return
 	}
 
-	resource := NewResource(request.Category, request.Id)
+	resource := resource.New(request.Category, request.Id)
 
 	imageFetchStartTime := time.Now()
 	image, err := resource.Fetch(request.Geometry)

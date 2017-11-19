@@ -2,11 +2,12 @@ package resizer
 
 import (
 	"errors"
-	"github.com/Sirupsen/logrus"
-	"github.com/tokubai/kinu/logger"
 	"os"
 	"runtime"
 	"strconv"
+
+	"github.com/Sirupsen/logrus"
+	"github.com/tokubai/kinu/logger"
 )
 
 type ResizeRequest struct {
@@ -29,10 +30,6 @@ var (
 	ErrTooManyRunningResizeWorker = errors.New("Too many running resize worker error.")
 
 	requestPayload chan *ResizeRequest
-)
-
-const (
-	DEFAULT_QUALITY = 70
 )
 
 func Run(image []byte, option *ResizeOption) (resizedImage []byte, err error) {

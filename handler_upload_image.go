@@ -1,10 +1,12 @@
 package main
 
 import (
-	"github.com/Sirupsen/logrus"
-	"github.com/tokubai/kinu/logger"
-	"github.com/julienschmidt/httprouter"
 	"net/http"
+
+	"github.com/Sirupsen/logrus"
+	"github.com/julienschmidt/httprouter"
+	"github.com/tokubai/kinu/logger"
+	"github.com/tokubai/kinu/resource"
 )
 
 func UploadImageHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -30,7 +32,7 @@ func UploadImageHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Pa
 		return
 	}
 
-	err = NewResource(imageType, imageId).Store(file)
+	err = resource.New(imageType, imageId).Store(file)
 	if err != nil {
 		if _, ok := err.(*ErrInvalidRequest); ok {
 			RespondBadRequest(w, err.Error())
