@@ -6,6 +6,10 @@ import (
 	"github.com/tokubai/kinu/logger"
 )
 
+const (
+	DEFAULT_QUALITY = 70
+)
+
 func Resize(image []byte, option *ResizeOption) (result *ResizeResult) {
 	calculator, err := NewCoodinatesCalculator(option)
 	if err != nil {

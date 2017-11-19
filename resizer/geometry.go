@@ -1,15 +1,19 @@
-package main
+package resizer
 
 import (
 	"fmt"
-	"github.com/tokubai/kinu/resizer"
 	"strconv"
 	"strings"
 )
 
-const DEFAULT_QUALITY = 80
-const MAX_QUALITY = 100
-const MIN_QUALITY = 0
+type ErrInvalidGeometryOrderRequest struct {
+	error
+	Message string
+}
+
+const GEOMETRY_DEFAULT_QUALITY = 80
+const GEOMETRY_MAX_QUALITY = 100
+const GEOMETRY_MIN_QUALITY = 0
 
 type Geometry struct {
 	Width              int    `json:"width"`
@@ -25,6 +29,13 @@ type Geometry struct {
 	NeedsOriginalImage bool   `json:"needs_original_image"`
 	MiddleImageSize    string `json:"middle_image_size"`
 }
+
+type ErrInvalidGeometry struct {
+	error
+	Message string
+}
+
+func (e *ErrInvalidGeometry) Error() string { return e.Message }
 
 const (
 	AUTO_CROP = iota
@@ -48,6 +59,10 @@ const (
 	GEO_MIDDLE
 )
 
+var (
+	MiddleImageSizes = []string{"original", "1000", "2000", "3000"}
+)
+
 func ParseGeometry(geo string) (*Geometry, error) {
 	conditions := strings.Split(geo, ",")
 
@@ -60,7 +75,7 @@ func ParseGeometry(geo string) (*Geometry, error) {
 		cond := strings.Split(condition, "=")
 
 		if len(cond) < 2 {
-			return nil, &ErrInvalidRequest{Message: "invalid geometry, support geometry pattern is key=value,key2=value."}
+			return nil, &ErrInvalidGeometry{Message: "invalid geometry, support geometry pattern is key=value,key2=value."}
 		}
 
 		switch cond[0] {
@@ -70,7 +85,7 @@ func ParseGeometry(geo string) (*Geometry, error) {
 			}
 			pos = GEO_WIDTH
 			if w, err := strconv.Atoi(cond[1]); err != nil {
-				return nil, &ErrInvalidRequest{Message: "geometry w is must be numeric."}
+				return nil, &ErrInvalidGeometry{Message: "geometry w is must be numeric."}
 			} else {
 				width = w
 			}
@@ -80,7 +95,7 @@ func ParseGeometry(geo string) (*Geometry, error) {
 			}
 			pos = GEO_HEIGHT
 			if h, err := strconv.Atoi(cond[1]); err != nil {
-				return nil, &ErrInvalidRequest{Message: "geometry h is must be numeric."}
+				return nil, &ErrInvalidGeometry{Message: "geometry h is must be numeric."}
 			} else {
 				height = h
 			}
@@ -90,9 +105,9 @@ func ParseGeometry(geo string) (*Geometry, error) {
 			}
 			pos = GEO_QUALITY
 			if q, err := strconv.Atoi(cond[1]); err != nil {
-				return nil, &ErrInvalidRequest{Message: "geometry q is must be numeric."}
-			} else if q > MAX_QUALITY || q < MIN_QUALITY {
-				return nil, &ErrInvalidRequest{Message: "q is under " + strconv.Itoa(MAX_QUALITY) + " and over " + strconv.Itoa(MIN_QUALITY)}
+				return nil, &ErrInvalidGeometry{Message: "geometry q is must be numeric."}
+			} else if q > GEOMETRY_MAX_QUALITY || q < GEOMETRY_MIN_QUALITY {
+				return nil, &ErrInvalidGeometry{Message: "q is under " + strconv.Itoa(GEOMETRY_MAX_QUALITY) + " and over " + strconv.Itoa(GEOMETRY_MIN_QUALITY)}
 			} else {
 				quality = q
 			}
@@ -122,7 +137,7 @@ func ParseGeometry(geo string) (*Geometry, error) {
 			}
 			pos = GEO_WIDTH_OFFSET
 			if wo, err := strconv.Atoi(cond[1]); err != nil {
-				return nil, &ErrInvalidRequest{Message: "geometry wo is must be numeric."}
+				return nil, &ErrInvalidGeometry{Message: "geometry wo is must be numeric."}
 			} else {
 				cropWidthOffset = wo
 			}
@@ -132,7 +147,7 @@ func ParseGeometry(geo string) (*Geometry, error) {
 			}
 			pos = GEO_HEIGHT_OFFSET
 			if ho, err := strconv.Atoi(cond[1]); err != nil {
-				return nil, &ErrInvalidRequest{Message: "geometry ho is must be numeric."}
+				return nil, &ErrInvalidGeometry{Message: "geometry ho is must be numeric."}
 			} else {
 				cropHeightOffset = ho
 			}
@@ -142,7 +157,7 @@ func ParseGeometry(geo string) (*Geometry, error) {
 			}
 			pos = GEO_CROP_WIDTH
 			if cw, err := strconv.Atoi(cond[1]); err != nil {
-				return nil, &ErrInvalidRequest{Message: "geometry cw is must be numeric."}
+				return nil, &ErrInvalidGeometry{Message: "geometry cw is must be numeric."}
 			} else {
 				cropWidth = cw
 			}
@@ -152,7 +167,7 @@ func ParseGeometry(geo string) (*Geometry, error) {
 			}
 			pos = GEO_CROP_HEIGHT
 			if ch, err := strconv.Atoi(cond[1]); err != nil {
-				return nil, &ErrInvalidRequest{Message: "geometry ch is must be numeric."}
+				return nil, &ErrInvalidGeometry{Message: "geometry ch is must be numeric."}
 			} else {
 				cropHeight = ch
 			}
@@ -162,7 +177,7 @@ func ParseGeometry(geo string) (*Geometry, error) {
 			}
 			pos = GEO_ASSUMPTION_WIDTH
 			if aw, err := strconv.Atoi(cond[1]); err != nil {
-				return nil, &ErrInvalidRequest{Message: "geometry as is must be numeric."}
+				return nil, &ErrInvalidGeometry{Message: "geometry as is must be numeric."}
 			} else {
 				assumptionWidth = aw
 			}
@@ -184,7 +199,7 @@ func ParseGeometry(geo string) (*Geometry, error) {
 			if cond[1] == "true" {
 				middleImageSize = "1000"
 			} else {
-				for _, size := range middleImageSizes {
+				for _, size := range MiddleImageSizes {
 					if cond[1] == size {
 						middleImageSize = cond[1]
 						break
@@ -192,17 +207,17 @@ func ParseGeometry(geo string) (*Geometry, error) {
 				}
 			}
 			if len(middleImageSize) == 0 {
-				return nil, &ErrInvalidRequest{Message: "must specify valid middle image size."}
+				return nil, &ErrInvalidGeometry{Message: "must specify valid middle image size."}
 			}
 		}
 	}
 
 	if len(middleImageSize) == 0 && width == 0 && height == 0 && needsOriginal == false {
-		return nil, &ErrInvalidRequest{Message: "must specify width or height when not original mode."}
+		return nil, &ErrInvalidGeometry{Message: "must specify width or height when not original mode."}
 	}
 
 	if needsManualCrop && (cropWidth == 0 || cropHeight == 0 || assumptionWidth == 0) {
-		return nil, &ErrInvalidRequest{Message: "must specify crop width, crop height and assumption width when manual crop mode."}
+		return nil, &ErrInvalidGeometry{Message: "must specify crop width, crop height and assumption width when manual crop mode."}
 	}
 
 	if quality == 0 {
@@ -211,15 +226,15 @@ func ParseGeometry(geo string) (*Geometry, error) {
 
 	return &Geometry{
 		Width: width, Height: height,
-		Quality: quality,
-		NeedsAutoCrop: needsAutoCrop,
-		NeedsManualCrop: needsManualCrop,
-		CropWidthOffset: cropWidthOffset,
-		CropHeightOffset: cropHeightOffset,
-		CropWidth: cropWidth,
-		CropHeight: cropHeight,
-		AssumptionWidth: assumptionWidth,
-		MiddleImageSize: middleImageSize,
+		Quality:            quality,
+		NeedsAutoCrop:      needsAutoCrop,
+		NeedsManualCrop:    needsManualCrop,
+		CropWidthOffset:    cropWidthOffset,
+		CropHeightOffset:   cropHeightOffset,
+		CropWidth:          cropWidth,
+		CropHeight:         cropHeight,
+		AssumptionWidth:    assumptionWidth,
+		MiddleImageSize:    middleImageSize,
 		NeedsOriginalImage: needsOriginal}, nil
 }
 
@@ -235,8 +250,8 @@ func (g *Geometry) ResizeMode() int {
 	return NORMAL_RESIZE
 }
 
-func (g *Geometry) ToResizeOption() (resizeOption *resizer.ResizeOption) {
-	return &resizer.ResizeOption{
+func (g *Geometry) ToResizeOption() (resizeOption *ResizeOption) {
+	return &ResizeOption{
 		Width:            g.Width,
 		Height:           g.Height,
 		Quality:          g.Quality,

@@ -1,21 +1,23 @@
-package main
+package resource
 
 import (
 	"fmt"
-	"github.com/Sirupsen/logrus"
-	"github.com/tokubai/kinu/logger"
-	"github.com/tokubai/kinu/storage"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"regexp"
 	"strconv"
 	"sync"
+
+	"github.com/Sirupsen/logrus"
+	"github.com/tokubai/kinu/logger"
+	"github.com/tokubai/kinu/resizer"
+	"github.com/tokubai/kinu/storage"
+	"github.com/tokubai/kinu/uploader"
 )
 
 var (
-	validExtensions     = []string{"jpg", "jpeg"}
-	middleImageSizes    = []string{"original", "1000", "2000", "3000"}
+	ValidExtensions     = []string{"jpg", "jpeg"}
 	imageFilePathRegexp *regexp.Regexp
 )
 
@@ -39,6 +41,26 @@ type ErrMove struct {
 	Errors []error
 }
 
+type ErrAttachFromSandbox struct {
+	error
+	Errors []error
+}
+
+func (e *ErrAttachFromSandbox) Error() string {
+	messages := "Image attach from sandbox error. cause, "
+	for i, err := range e.Errors {
+		messages = messages + strconv.Itoa(i+1) + ". " + err.Error() + "  "
+	}
+	return messages
+}
+
+type ErrStore struct {
+	error
+	Message string
+}
+
+func (e *ErrStore) Error() string { return e.Message }
+
 func (e *ErrMove) Error() string {
 	messages := "Move error. cause, "
 	for i, err := range e.Errors {
@@ -47,7 +69,7 @@ func (e *ErrMove) Error() string {
 	return messages
 }
 
-func NewResource(category string, id string) *Resource {
+func New(category string, id string) *Resource {
 	return &Resource{
 		Category: category,
 		Id:       id,
@@ -62,7 +84,7 @@ func (r *Resource) BasePath() string {
 	return fmt.Sprintf("%s/%s", r.Category, r.Id)
 }
 
-func (r *Resource) Fetch(geo *Geometry) (*Image, error) {
+func (r *Resource) Fetch(geo *resizer.Geometry) (*Image, error) {
 	var middleImageSize string
 	if geo.NeedsOriginalImage {
 		middleImageSize = "original"
@@ -120,7 +142,7 @@ func (r *Resource) MoveTo(category, id string) error {
 		return logger.ErrorDebug(err)
 	}
 
-	moveToResource := NewResource(category, id)
+	moveToResource := New(category, id)
 
 	wg := sync.WaitGroup{}
 	errs := make(chan error, len(items))
@@ -169,7 +191,7 @@ func (r *Resource) MoveTo(category, id string) error {
 func (r *Resource) Store(file io.ReadSeeker) error {
 	imageData, err := ioutil.ReadAll(file)
 	if err != nil {
-		return &ErrInvalidRequest{Message: "invalid file"}
+		return &ErrStore{Message: "invalid file"}
 	}
 
 	contentType := ""
@@ -179,12 +201,12 @@ func (r *Resource) Store(file io.ReadSeeker) error {
 	case "image/jpg":
 		contentType = "jpg"
 	default:
-		return &ErrInvalidRequest{Message: "unsupported filetype, only support jpg"}
+		return &ErrStore{Message: "unsupported filetype, only support jpg"}
 	}
 
-	uploaders := make([]Uploader, 0)
-	for _, size := range middleImageSizes {
-		uploader := &ImageUploader{
+	uploaders := make([]uploader.Uploader, 0)
+	for _, size := range resizer.MiddleImageSizes {
+		uploader := &uploader.ImageUploader{
 			ImageBlob:  imageData,
 			Path:       r.FilePath(size),
 			UploadSize: size,
@@ -192,10 +214,10 @@ func (r *Resource) Store(file io.ReadSeeker) error {
 		uploaders = append(uploaders, uploader)
 	}
 	uploaders = append(uploaders,
-		&TextFileUploader{
+		&uploader.TextFileUploader{
 			Path: fmt.Sprintf("%s/filetype.%s", r.BasePath(), contentType),
 		},
 	)
 
-	return Upload(uploaders)
+	return uploader.Upload(uploaders)
 }

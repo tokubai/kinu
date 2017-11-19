@@ -4,18 +4,19 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/julienschmidt/httprouter"
-	"github.com/tokubai/kinu/engine"
-	"github.com/tokubai/kinu/logger"
-	"github.com/vincent-petithory/dataurl"
-	"github.com/zenazn/goji/bind"
-	"github.com/zenazn/goji/graceful"
 	"io"
 	"net/http"
 	"net/http/pprof"
 	"os"
 	"path/filepath"
 	"runtime"
+
+	"github.com/julienschmidt/httprouter"
+	"github.com/tokubai/kinu/engine"
+	"github.com/tokubai/kinu/logger"
+	"github.com/vincent-petithory/dataurl"
+	"github.com/zenazn/goji/bind"
+	"github.com/zenazn/goji/graceful"
 )
 
 const (
@@ -26,18 +27,6 @@ const (
 var (
 	ErrInvalidImageExt = errors.New("supported image type is only jpg/jpeg")
 )
-
-type ErrInvalidRequest struct {
-	error
-	Message string
-}
-
-type ErrInvalidGeometryOrderRequest struct {
-	error
-	Message string
-}
-
-func (e *ErrInvalidRequest) Error() string { return e.Message }
 
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())

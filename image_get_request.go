@@ -1,19 +1,29 @@
 package main
 
 import (
-	"github.com/Sirupsen/logrus"
-	"github.com/tokubai/kinu/logger"
-	"github.com/julienschmidt/httprouter"
 	"path/filepath"
 	"strings"
+
+	"github.com/Sirupsen/logrus"
+	"github.com/julienschmidt/httprouter"
+	"github.com/tokubai/kinu/logger"
+	"github.com/tokubai/kinu/resizer"
+	"github.com/tokubai/kinu/resource"
 )
 
 type ImageGetRequest struct {
 	Category  string
 	Id        string
-	Geometry  *Geometry
+	Geometry  *resizer.Geometry
 	Extension string
 }
+
+type ErrInvalidRequest struct {
+	error
+	Message string
+}
+
+func (e *ErrInvalidRequest) Error() string { return e.Message }
 
 func ExtractId(filename string) string {
 	return strings.Split(filename, ".")[0]
@@ -24,7 +34,7 @@ func ExtractExtension(filename string) string {
 }
 
 func IsValidImageExt(ext string) bool {
-	for _, e := range validExtensions {
+	for _, e := range resource.ValidExtensions {
 		if e == ext {
 			return true
 		}
@@ -53,7 +63,7 @@ func NewImageGetRequest(ps httprouter.Params) (*ImageGetRequest, error) {
 		return nil, &ErrInvalidRequest{Message: "invalid filename"}
 	}
 
-	geometry, err := ParseGeometry(ps.ByName("geometry"))
+	geometry, err := resizer.ParseGeometry(ps.ByName("geometry"))
 	if err != nil {
 		return nil, err
 	}
