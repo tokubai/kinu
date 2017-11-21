@@ -17,7 +17,7 @@ import (
 )
 
 var (
-	ValidExtensions     = []string{"jpg", "jpeg"}
+	ValidExtensions     = []string{"jpg", "jpeg", "png", "webp"}
 	imageFilePathRegexp *regexp.Regexp
 )
 

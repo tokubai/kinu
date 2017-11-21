@@ -87,14 +87,20 @@ func HandlePprof(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 func SetContentType(w http.ResponseWriter, filename string) error {
 	ext := ExtractExtension(filepath.Ext(filename))
-	if ext == "data" {
+	switch ext {
+	case "jpg", "jpeg":
+		w.Header().Set("Content-Type", "image/jpg")
+		return nil
+	case "png":
+		w.Header().Set("Content-Type", "image/png")
+		return nil
+	case "data":
 		w.Header().Set("Content-Type", "text/plain")
 		return nil
-	}
-	if IsValidImageExt(ext) {
-		w.Header().Set("Content-Type", "image/"+ext)
+	case "webp":
+		w.Header().Set("Content-Type", "image/webp")
 		return nil
-	} else {
+	default:
 		return ErrInvalidImageExt
 	}
 }

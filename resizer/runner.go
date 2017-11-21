@@ -132,6 +132,8 @@ type ResizeOption struct {
 
 	SizeHintWidth  int
 	SizeHintHeight int
+
+	Format string
 }
 
 func (o *ResizeOption) HasSizeHint() bool {

@@ -2,10 +2,11 @@ package engine
 
 import (
 	"errors"
+	"os"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/tokubai/kinu/logger"
 	"gopkg.in/gographics/imagick.v2/imagick"
-	"os"
 )
 
 type ResizeEngine interface {
@@ -13,6 +14,7 @@ type ResizeEngine interface {
 	Close()
 
 	SetSizeHint(width, height int)
+	SetFormat(format string)
 
 	GetImageHeight() int
 	GetImageWidth() int
