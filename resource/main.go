@@ -17,7 +17,7 @@ import (
 )
 
 var (
-	ValidExtensions     = []string{"jpg", "jpeg"}
+	ValidExtensions     = []string{"jpg", "jpeg", "png", "webp"}
 	imageFilePathRegexp *regexp.Regexp
 )
 
@@ -194,28 +194,33 @@ func (r *Resource) Store(file io.ReadSeeker) error {
 		return &ErrStore{Message: "invalid file"}
 	}
 
-	contentType := ""
+	ext := ""
+	contentType := http.DetectContentType(imageData)
 	switch http.DetectContentType(imageData) {
 	case "image/jpeg":
-		contentType = "jpg"
+		ext = "jpg"
 	case "image/jpg":
-		contentType = "jpg"
+		ext = "jpg"
+	case "image/png":
+		ext = "png"
 	default:
-		return &ErrStore{Message: "unsupported filetype, only support jpg"}
+		return &ErrStore{Message: "unsupported filetype, supported jpg or png"}
 	}
 
 	uploaders := make([]uploader.Uploader, 0)
 	for _, size := range resizer.MiddleImageSizes {
 		uploader := &uploader.ImageUploader{
-			ImageBlob:  imageData,
-			Path:       r.FilePath(size),
-			UploadSize: size,
+			ImageBlob:   imageData,
+			Path:        r.FilePath(size),
+			UploadSize:  size,
+			ContentType: contentType,
+			Ext:         ext,
 		}
 		uploaders = append(uploaders, uploader)
 	}
 	uploaders = append(uploaders,
 		&uploader.TextFileUploader{
-			Path: fmt.Sprintf("%s/filetype.%s", r.BasePath(), contentType),
+			Path: fmt.Sprintf("%s/filetype.%s", r.BasePath(), ext),
 		},
 	)
 

@@ -2,13 +2,14 @@ package storage
 
 import (
 	"encoding/json"
-	"github.com/Sirupsen/logrus"
-	"github.com/tokubai/kinu/logger"
 	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/Sirupsen/logrus"
+	"github.com/tokubai/kinu/logger"
 )
 
 type FileStorage struct {
@@ -89,7 +90,7 @@ func (s *FileStorage) Fetch(key string) (*Object, error) {
 	return object, nil
 }
 
-func (s *FileStorage) PutFromBlob(key string, image []byte, metadata map[string]string) error {
+func (s *FileStorage) PutFromBlob(key string, image []byte, contentType string, metadata map[string]string) error {
 	key = s.BuildKey(key)
 
 	directory := filepath.Dir(key)
@@ -103,6 +104,8 @@ func (s *FileStorage) PutFromBlob(key string, image []byte, metadata map[string]
 	if err != nil {
 		return logger.ErrorDebug(err)
 	}
+
+	metadata["Content-Type"] = contentType
 
 	j, err := json.Marshal(metadata)
 	if err != nil {
@@ -118,12 +121,12 @@ func (s *FileStorage) PutFromBlob(key string, image []byte, metadata map[string]
 	return nil
 }
 
-func (s *FileStorage) Put(key string, imageFile io.ReadSeeker, metadata map[string]string) error {
+func (s *FileStorage) Put(key string, imageFile io.ReadSeeker, contentType string, metadata map[string]string) error {
 	image, err := ioutil.ReadAll(imageFile)
 	if err != nil {
 		return logger.ErrorDebug(err)
 	}
-	return s.PutFromBlob(key, image, metadata)
+	return s.PutFromBlob(key, image, contentType, metadata)
 }
 
 func (s *FileStorage) List(key string) ([]StorageItem, error) {

@@ -75,6 +75,11 @@ func Resize(image []byte, option *ResizeOption) (result *ResizeResult) {
 		}
 	}
 
+	logger.Debug(option.Format)
+	if len(option.Format) != 0 {
+		engine.SetFormat(option.Format)
+	}
+
 	resultImage, err := engine.Generate()
 	return &ResizeResult{image: resultImage, err: err}
 }

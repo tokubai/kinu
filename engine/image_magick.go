@@ -2,6 +2,7 @@ package engine
 
 import (
 	"fmt"
+
 	"github.com/tokubai/kinu/logger"
 	"gopkg.in/gographics/imagick.v2/imagick"
 )
@@ -23,6 +24,14 @@ func newImageMagickEngine(image []byte) (e *ImageMagickEngine) {
 func (e *ImageMagickEngine) SetSizeHint(width int, height int) {
 	e.heightSizeHint = height
 	e.widthSizeHint = width
+}
+
+func (e *ImageMagickEngine) SetFormat(format string) {
+	if format == "data" {
+		e.mw.SetImageFormat("jpeg")
+	} else {
+		e.mw.SetImageFormat(format)
+	}
 }
 
 func (e *ImageMagickEngine) Open() error {
@@ -73,5 +82,6 @@ func (e *ImageMagickEngine) Generate() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return e.mw.GetImageBlob(), nil
 }
