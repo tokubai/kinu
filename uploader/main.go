@@ -60,9 +60,11 @@ type Uploader interface {
 
 type ImageUploader struct {
 	Uploader
-	Path       string
-	ImageBlob  []byte
-	UploadSize string
+	Path        string
+	ImageBlob   []byte
+	UploadSize  string
+	ContentType string
+	Ext         string
 }
 
 func (u *ImageUploader) NeedsResize() bool {
@@ -110,7 +112,7 @@ func (u *ImageUploader) Exec() error {
 		return logger.ErrorDebug(err)
 	}
 
-	return storage.PutFromBlob(u.Path, u.ImageBlob, map[string]string{"Width": strconv.Itoa(e.GetImageWidth()), "Height": strconv.Itoa(e.GetImageHeight())})
+	return storage.PutFromBlob(u.Path, u.ImageBlob, u.ContentType, map[string]string{"Width": strconv.Itoa(e.GetImageWidth()), "Height": strconv.Itoa(e.GetImageHeight())})
 }
 
 type TextFileUploader struct {
@@ -125,5 +127,5 @@ func (u *TextFileUploader) Exec() error {
 	if err != nil {
 		return logger.ErrorDebug(err)
 	}
-	return storage.PutFromBlob(u.Path, []byte(u.Body), map[string]string{})
+	return storage.PutFromBlob(u.Path, []byte(u.Body), "plain/text", map[string]string{})
 }

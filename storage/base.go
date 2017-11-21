@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io"
 	"os"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/tokubai/kinu/logger"
 )
@@ -13,8 +14,8 @@ type Storage interface {
 
 	Fetch(key string) (*Object, error)
 
-	PutFromBlob(key string, image []byte, metadata map[string]string) error
-	Put(key string, imageFile io.ReadSeeker, metadata map[string]string) error
+	PutFromBlob(key string, image []byte, contentType string, metadata map[string]string) error
+	Put(key string, imageFile io.ReadSeeker, contentType string, metadata map[string]string) error
 
 	List(key string) ([]StorageItem, error)
 

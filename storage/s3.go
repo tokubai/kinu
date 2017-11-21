@@ -1,17 +1,18 @@
 package storage
 
 import (
-	"github.com/Sirupsen/logrus"
-	"github.com/tokubai/kinu/logger"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	awsSession "github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/Sirupsen/logrus"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
+	awsSession "github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/tokubai/kinu/logger"
 )
 
 type S3Storage struct {
@@ -112,7 +113,7 @@ func (s *S3Storage) Fetch(key string) (*Object, error) {
 	return object, nil
 }
 
-func (s *S3Storage) PutFromBlob(key string, image []byte, metadata map[string]string) error {
+func (s *S3Storage) PutFromBlob(key string, image []byte, contentType string, metadata map[string]string) error {
 	tmpfile, err := ioutil.TempFile("", "kinu-upload")
 	if err != nil {
 		return logger.ErrorDebug(err)
@@ -127,20 +128,21 @@ func (s *S3Storage) PutFromBlob(key string, image []byte, metadata map[string]st
 		os.Remove(tmpfile.Name())
 	}()
 
-	return s.Put(key, tmpfile, metadata)
+	return s.Put(key, tmpfile, contentType, metadata)
 }
 
-func (s *S3Storage) Put(key string, imageFile io.ReadSeeker, metadata map[string]string) error {
+func (s *S3Storage) Put(key string, imageFile io.ReadSeeker, contentType string, metadata map[string]string) error {
 	putMetadata := make(map[string]*string, 0)
 	for k, v := range metadata {
 		putMetadata[k] = aws.String(v)
 	}
 
 	_, err := s.client.PutObject(&s3.PutObjectInput{
-		Bucket:   aws.String(s.bucket),
-		Key:      aws.String(s.BuildKey(key)),
-		Body:     imageFile,
-		Metadata: putMetadata,
+		Bucket:      aws.String(s.bucket),
+		Key:         aws.String(s.BuildKey(key)),
+		ContentType: aws.String(contentType),
+		Body:        imageFile,
+		Metadata:    putMetadata,
 	})
 
 	logger.WithFields(logrus.Fields{

@@ -194,12 +194,13 @@ func (r *Resource) Store(file io.ReadSeeker) error {
 		return &ErrStore{Message: "invalid file"}
 	}
 
-	contentType := ""
+	ext := ""
+	contentType := http.DetectContentType(imageData)
 	switch http.DetectContentType(imageData) {
 	case "image/jpeg":
-		contentType = "jpg"
+		ext = "jpg"
 	case "image/jpg":
-		contentType = "jpg"
+		ext = "jpg"
 	default:
 		return &ErrStore{Message: "unsupported filetype, only support jpg"}
 	}
@@ -207,15 +208,17 @@ func (r *Resource) Store(file io.ReadSeeker) error {
 	uploaders := make([]uploader.Uploader, 0)
 	for _, size := range resizer.MiddleImageSizes {
 		uploader := &uploader.ImageUploader{
-			ImageBlob:  imageData,
-			Path:       r.FilePath(size),
-			UploadSize: size,
+			ImageBlob:   imageData,
+			Path:        r.FilePath(size),
+			UploadSize:  size,
+			ContentType: contentType,
+			Ext:         ext,
 		}
 		uploaders = append(uploaders, uploader)
 	}
 	uploaders = append(uploaders,
 		&uploader.TextFileUploader{
-			Path: fmt.Sprintf("%s/filetype.%s", r.BasePath(), contentType),
+			Path: fmt.Sprintf("%s/filetype.%s", r.BasePath(), ext),
 		},
 	)
 
