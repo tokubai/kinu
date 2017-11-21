@@ -13,6 +13,10 @@ import (
 func init() {
 	logLevel := os.Getenv("KINU_LOG_LEVEL")
 
+	if len(logLevel) == 0 {
+		logLevel = "info"
+	}
+
 	level, err := logrus.ParseLevel(logLevel)
 	if err != nil {
 		Panic(err)
