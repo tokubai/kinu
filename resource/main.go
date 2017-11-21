@@ -201,8 +201,10 @@ func (r *Resource) Store(file io.ReadSeeker) error {
 		ext = "jpg"
 	case "image/jpg":
 		ext = "jpg"
+	case "image/png":
+		ext = "png"
 	default:
-		return &ErrStore{Message: "unsupported filetype, only support jpg"}
+		return &ErrStore{Message: "unsupported filetype, supported jpg or png"}
 	}
 
 	uploaders := make([]uploader.Uploader, 0)
