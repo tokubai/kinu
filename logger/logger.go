@@ -2,8 +2,8 @@ package logger
 
 import (
 	"fmt"
-	"github.com/Sirupsen/logrus"
 	ltsv "github.com/doloopwhile/logrusltsv"
+	"github.com/sirupsen/logrus"
 	"os"
 	"runtime"
 	"strconv"

@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"github.com/tokubai/kinu/logger"
 	"github.com/tokubai/kinu/resizer"
 	"github.com/tokubai/kinu/storage"

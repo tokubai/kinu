@@ -4,7 +4,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/Sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"github.com/julienschmidt/httprouter"
 	"github.com/tokubai/kinu/logger"
 	"github.com/tokubai/kinu/resizer"

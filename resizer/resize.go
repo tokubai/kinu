@@ -1,7 +1,7 @@
 package resizer
 
 import (
-	"github.com/Sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"github.com/tokubai/kinu/engine"
 	"github.com/tokubai/kinu/logger"
 )
