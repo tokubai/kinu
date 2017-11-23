@@ -15,7 +15,7 @@ import (
 	"github.com/tokubai/kinu/logger"
 )
 
-type S3Storage struct {
+type BackwardCompatibleS3Storage struct {
 	Storage
 
 	client *s3.S3
@@ -25,14 +25,14 @@ type S3Storage struct {
 	bucketBasePath string
 }
 
-type S3StorageItem struct {
+type BackwardCompatibleS3StorageItem struct {
 	StorageItem
 
 	Object *s3.Object
 }
 
-func openS3Storage() (Storage, error) {
-	s := &S3Storage{}
+func openBackwardCompatibleS3Storage() (Storage, error) {
+	s := &BackwardCompatibleS3Storage{}
 	err := s.Open()
 	if err != nil {
 		return nil, logger.ErrorDebug(err)
@@ -40,7 +40,7 @@ func openS3Storage() (Storage, error) {
 	return s, nil
 }
 
-func (s *S3Storage) Open() error {
+func (s *BackwardCompatibleS3Storage) Open() error {
 	s.region = os.Getenv("KINU_S3_REGION")
 	if len(s.region) == 0 {
 		return &ErrInvalidStorageOption{Message: "KINU_S3_REGION system env is required"}
@@ -64,10 +64,8 @@ func (s *S3Storage) Open() error {
 	return nil
 }
 
-func (s *S3Storage) BuildKey(key string) string {
-	if s.bucketBasePath == "/" {
-		return key
-	} else if len(s.bucketBasePath) == 0 {
+func (s *BackwardCompatibleS3Storage) BuildKey(key string) string {
+	if len(s.bucketBasePath) == 0 {
 		return key
 	} else if strings.HasSuffix(s.bucketBasePath, "/") {
 		return s.bucketBasePath + key
@@ -76,7 +74,7 @@ func (s *S3Storage) BuildKey(key string) string {
 	}
 }
 
-func (s *S3Storage) Fetch(key string) (*Object, error) {
+func (s *BackwardCompatibleS3Storage) Fetch(key string) (*Object, error) {
 	key = s.BuildKey(key)
 
 	params := &s3.GetObjectInput{
@@ -118,7 +116,7 @@ func (s *S3Storage) Fetch(key string) (*Object, error) {
 	return object, nil
 }
 
-func (s *S3Storage) PutFromBlob(key string, image []byte, contentType string, metadata map[string]string) error {
+func (s *BackwardCompatibleS3Storage) PutFromBlob(key string, image []byte, contentType string, metadata map[string]string) error {
 	tmpfile, err := ioutil.TempFile("", "kinu-upload")
 	if err != nil {
 		return logger.ErrorDebug(err)
@@ -136,7 +134,7 @@ func (s *S3Storage) PutFromBlob(key string, image []byte, contentType string, me
 	return s.Put(key, tmpfile, contentType, metadata)
 }
 
-func (s *S3Storage) Put(key string, imageFile io.ReadSeeker, contentType string, metadata map[string]string) error {
+func (s *BackwardCompatibleS3Storage) Put(key string, imageFile io.ReadSeeker, contentType string, metadata map[string]string) error {
 	putMetadata := make(map[string]*string, 0)
 	for k, v := range metadata {
 		putMetadata[k] = aws.String(v)
@@ -162,7 +160,7 @@ func (s *S3Storage) Put(key string, imageFile io.ReadSeeker, contentType string,
 	return nil
 }
 
-func (s *S3Storage) List(key string) ([]StorageItem, error) {
+func (s *BackwardCompatibleS3Storage) List(key string) ([]StorageItem, error) {
 	resp, err := s.client.ListObjects(&s3.ListObjectsInput{
 		Bucket: aws.String(s.bucket),
 		Prefix: aws.String(s.BuildKey(key)),
@@ -182,14 +180,14 @@ func (s *S3Storage) List(key string) ([]StorageItem, error) {
 		logger.WithFields(logrus.Fields{
 			"key": &object.Key,
 		}).Debug("found object")
-		item := S3StorageItem{Object: object}
+		item := BackwardCompatibleS3StorageItem{Object: object}
 		items = append(items, &item)
 	}
 
 	return items, nil
 }
 
-func (s *S3Storage) Move(from string, to string) error {
+func (s *BackwardCompatibleS3Storage) Move(from string, to string) error {
 	fromKey := s.bucket + "/" + from
 	toKey := s.bucketBasePath + "/" + to
 
@@ -223,7 +221,7 @@ func (s *S3Storage) Move(from string, to string) error {
 	return nil
 }
 
-func (s *S3StorageItem) IsValid() bool {
+func (s *BackwardCompatibleS3StorageItem) IsValid() bool {
 	if len(s.Extension()) == 0 {
 		return false
 	}
@@ -235,22 +233,25 @@ func (s *S3StorageItem) IsValid() bool {
 	return true
 }
 
-func (s *S3StorageItem) Key() string {
+func (s *BackwardCompatibleS3StorageItem) Key() string {
 	return *s.Object.Key
 }
 
-func (s *S3StorageItem) Filename() string {
+func (s *BackwardCompatibleS3StorageItem) Filename() string {
 	path := strings.Split(s.Key(), "/")
 	return path[len(path)-1]
 }
 
-func (s *S3StorageItem) Extension() string {
+func (s *BackwardCompatibleS3StorageItem) Extension() string {
 	path := strings.Split(*s.Object.Key, ".")
 	return path[len(path)-1]
 }
 
-// KeyFormat: :image_type/:id/:id.:size.:format
-func (s *S3StorageItem) ImageSize() string {
-	path := strings.Split(s.Key(), ".")
-	return path[len(path)-2]
+// KeyFormat: :image_type/:id/:id.original.:date.:format or :image_type/:id/:id.:format
+func (s *BackwardCompatibleS3StorageItem) ImageSize() string {
+	if strings.Contains(s.Key(), "original") {
+		return "original"
+	} else {
+		return "1000"
+	}
 }
