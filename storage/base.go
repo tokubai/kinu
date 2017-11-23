@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/Sirupsen/logrus"
+	"github.com/tokubai/kinu/config"
 	"github.com/tokubai/kinu/logger"
 )
 
@@ -52,20 +53,24 @@ var (
 )
 
 func init() {
-	selectedStorageType = os.Getenv("KINU_STORAGE_TYPE")
-	if len(selectedStorageType) == 0 {
-		panic("must specify KINU_STORAGE_TYPE system environment.")
-	}
-
-	var isAvailableStorageType bool
-	for _, storageType := range AvailableStorageTypes {
-		if selectedStorageType == storageType {
-			isAvailableStorageType = true
+	if config.BackwardCompatibleMode {
+		selectedStorageType = "BackwardCompatibleS3"
+	} else {
+		selectedStorageType = os.Getenv("KINU_STORAGE_TYPE")
+		if len(selectedStorageType) == 0 {
+			panic("must specify KINU_STORAGE_TYPE system environment.")
 		}
-	}
 
-	if !isAvailableStorageType {
-		panic("unknown KINU_STORAGE_TYPE " + selectedStorageType + ".")
+		var isAvailableStorageType bool
+		for _, storageType := range AvailableStorageTypes {
+			if selectedStorageType == storageType {
+				isAvailableStorageType = true
+			}
+		}
+
+		if !isAvailableStorageType {
+			panic("unknown KINU_STORAGE_TYPE " + selectedStorageType + ".")
+		}
 	}
 
 	logger.WithFields(logrus.Fields{
@@ -79,6 +84,8 @@ func Open() (Storage, error) {
 		return openS3Storage()
 	case "File":
 		return openFileStorage()
+	case "BackwardCompatibleS3":
+		return openBackwardCompatibleS3Storage()
 	default:
 		return nil, ErrUnknownStorage
 	}
