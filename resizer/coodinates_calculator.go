@@ -73,10 +73,30 @@ func (c *CoodinatesCalculator) ManualCrop(option *ResizeOption) (coodinates *Coo
 
 	assumeRatio := float64(c.ImageWidth) / float64(option.AssumptionWidth)
 
-	coodinates.CropHeight = int(float64(option.CropHeight) * assumeRatio)
-	coodinates.CropWidth = int(float64(option.CropWidth) * assumeRatio)
-	coodinates.WidthOffset = int(float64(option.CropWidthOffset) * assumeRatio)
-	coodinates.HeightOffset = int(float64(option.CropHeightOffset) * assumeRatio)
+	assumeWidthOffset := float64(option.CropWidthOffset) * assumeRatio
+	assumeHeightOffset := float64(option.CropHeightOffset) * assumeRatio
+
+	assumeWidth := float64(option.CropWidth) * assumeRatio
+	assumeHeight := float64(option.CropHeight) * assumeRatio
+
+	widthScaleRatio := float64(option.Width) / assumeWidth
+	heightScaleRatio := float64(option.Height) / assumeHeight
+
+	scaleRatio := math.Max(widthScaleRatio, heightScaleRatio)
+
+	assumeCropWidth := float64(option.Width) / scaleRatio
+	assumeCropHeight := float64(option.Height) / scaleRatio
+
+	if widthScaleRatio > heightScaleRatio {
+		assumeHeightOffset = assumeHeightOffset + ((assumeHeight - assumeCropHeight) / 2.0)
+	} else {
+		assumeWidthOffset = assumeWidthOffset + ((assumeWidth - assumeCropWidth) / 2.0)
+	}
+
+	coodinates.CropWidth = int(assumeCropWidth)
+	coodinates.CropHeight = int(assumeCropHeight)
+	coodinates.WidthOffset = int(assumeWidthOffset)
+	coodinates.HeightOffset = int(assumeHeightOffset)
 
 	coodinates.ResizeWidth = option.Width
 	coodinates.ResizeHeight = option.Height
