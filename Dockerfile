@@ -8,7 +8,7 @@ RUN env DEBIAN_FRONTEND=noninteractive apt-get update && \
     rm -rf /var/lib/apt/lists/* && \
     apt-get clean
 
-ENV GOLANG_VERSION 1.6.2
+ENV GOLANG_VERSION 1.9.2
 ENV GOROOT /usr/local/go
 ENV GOPATH /usr/local/go/vendor
 
