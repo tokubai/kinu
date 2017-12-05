@@ -94,6 +94,9 @@ func SetContentType(w http.ResponseWriter, filename string) error {
 	case "png":
 		w.Header().Set("Content-Type", "image/png")
 		return nil
+	case "gif":
+		w.Header().Set("Content-Type", "image/gif")
+		return nil
 	case "data":
 		w.Header().Set("Content-Type", "text/plain")
 		return nil

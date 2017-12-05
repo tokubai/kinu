@@ -158,8 +158,10 @@ func (r *KinuResource) Store(file io.ReadSeeker) error {
 		ext = "jpg"
 	case "image/png":
 		ext = "png"
+	case "image/gif":
+		ext = "gif"
 	default:
-		return &ErrStore{Message: "unsupported filetype, supported jpg or png"}
+		return &ErrStore{Message: "unsupported filetype, supported jpg or png or gif"}
 	}
 
 	uploaders := make([]uploader.Uploader, 0)
