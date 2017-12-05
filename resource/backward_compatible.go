@@ -31,10 +31,10 @@ type BackwardCompatibleResource struct {
 }
 
 func (r *BackwardCompatibleResource) FilePath(size string) string {
-	if size == "original" {
-		return fmt.Sprintf("%s/%s.original.%s.jpg", r.BasePath(), r.Id, time.Now().Format("20060102150405"))
-	} else {
+	if size == "1000" {
 		return fmt.Sprintf("%s/%s.jpg", r.BasePath(), r.Id)
+	} else {
+		return fmt.Sprintf("%s/%s.original.%s.jpg", r.BasePath(), r.Id, time.Now().Format("20060102150405"))
 	}
 }
 
