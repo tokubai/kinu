@@ -20,7 +20,7 @@ go get github.com/tokubai/kinu
 or 
 
 ```
-docker pull tokubai/kinu:1.0.0.alpha6
+docker pull tokubai/kinu:1.0.0.alpha7
 ```
 
 ## Startup
@@ -45,7 +45,7 @@ $ curl http://localhost:8080/version
 #### docker run
 
 ```
-$ docker run tokubai/kinu:1.0.0.alpha6
+$ docker run tokubai/kinu:1.0.0.alpha7
 INFO[0000] setup resize engine                           resize_engine_type=ImageMagick
 INFO[0000] setup storage                                 storage_type=File
 INFO[0000] [starting kinu on 0.0.0.0:80]
