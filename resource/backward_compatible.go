@@ -204,7 +204,7 @@ func (r *BackwardCompatibleResource) Store(file io.ReadSeeker) error {
 	case "image/gif":
 		ext = "gif"
 	default:
-		return &ErrStore{Message: "unsupported filetype, supported jpg or png"}
+		return &ErrStore{Message: "unsupported filetype, supported jpg or png or gif"}
 	}
 
 	uploaders := make([]uploader.Uploader, 0)
