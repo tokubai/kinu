@@ -21,7 +21,7 @@ import (
 
 const (
 	DEFAULT_BIND = "127.0.0.1:8080"
-	VERSION      = "1.0.0.alpha8"
+	VERSION      = "1.0.0.alpha9"
 )
 
 var (
