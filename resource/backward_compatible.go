@@ -96,13 +96,13 @@ func (r *BackwardCompatibleResource) Fetch(geo *resizer.Geometry) (*Image, error
 	}
 
 	var path string
-	if middleImageSize == "original" {
+	if middleImageSize == "1000" {
+		path = r.FilePath(middleImageSize)
+	} else {
 		path, err = r.RecentOriginalFileKey()
 		if err != nil {
 			return image, logger.ErrorDebug(err)
 		}
-	} else {
-		path = r.FilePath(middleImageSize)
 	}
 
 	obj, err := st.Fetch(path)
