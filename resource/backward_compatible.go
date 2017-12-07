@@ -30,6 +30,10 @@ type BackwardCompatibleResource struct {
 	Id       string
 }
 
+var (
+	ErrOriginalImageNotFound = errors.New("not found original image")
+)
+
 func (r *BackwardCompatibleResource) FilePath(size string) string {
 	if size == "1000" {
 		return fmt.Sprintf("%s/%s.jpg", r.BasePath(), r.Id)
@@ -50,7 +54,7 @@ func (r *BackwardCompatibleResource) RecentOriginalFileKey() (string, error) {
 	}
 
 	if len(items) == 0 {
-		return "", errors.New("not found original file")
+		return "", ErrOriginalImageNotFound
 	}
 
 	var recentTimestamp int

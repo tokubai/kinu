@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/sirupsen/logrus"
 	"github.com/julienschmidt/httprouter"
+	"github.com/sirupsen/logrus"
 	"github.com/tokubai/kinu/logger"
 	"github.com/tokubai/kinu/resizer"
 	"github.com/tokubai/kinu/resource"
@@ -35,12 +35,14 @@ func GetImageHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 		return
 	}
 
-	resource := resource.New(request.Category, request.Id)
+	targetResource := resource.New(request.Category, request.Id)
 
 	imageFetchStartTime := time.Now()
-	image, err := resource.Fetch(request.Geometry)
+	image, err := targetResource.Fetch(request.Geometry)
 	if err != nil {
 		if err == storage.ErrImageNotFound {
+			RespondNotFound(w)
+		} else if err == resource.ErrOriginalImageNotFound {
 			RespondNotFound(w)
 		} else {
 			RespondInternalServerError(w, err)
