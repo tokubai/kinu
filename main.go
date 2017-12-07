@@ -11,6 +11,8 @@ import (
 	"path/filepath"
 	"runtime"
 
+	"github.com/getsentry/raven-go"
+
 	"github.com/julienschmidt/httprouter"
 	"github.com/tokubai/kinu/engine"
 	"github.com/tokubai/kinu/logger"
@@ -26,6 +28,7 @@ const (
 
 var (
 	ErrInvalidImageExt = errors.New("supported image type is only jpg/jpeg")
+	UseSentry          = false
 )
 
 func main() {
@@ -38,6 +41,12 @@ func main() {
 
 	if os.Getenv("KINU_DEBUG") == "1" {
 		router.GET("/debug/pprof/*pprof", HandlePprof)
+	}
+
+	ravenDSN := os.Getenv("KINU_SENTRY_DSN")
+	if len(ravenDSN) != 0 {
+		UseSentry = true
+		raven.SetDSN(ravenDSN)
 	}
 
 	router.GET("/images/:type/:geometry/:filename", GetImageHandler)
@@ -118,6 +127,9 @@ func RespondNotFound(w http.ResponseWriter) {
 }
 
 func RespondInternalServerError(w http.ResponseWriter, err error) {
+	if UseSentry {
+		raven.CaptureError(err, nil)
+	}
 	logger.ErrorDebug(err)
 	w.WriteHeader(http.StatusInternalServerError)
 }
