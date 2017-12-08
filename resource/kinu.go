@@ -153,7 +153,7 @@ func (r *KinuResource) Store(file io.ReadSeeker) error {
 
 	ext := ""
 	contentType := http.DetectContentType(imageData)
-	switch http.DetectContentType(imageData) {
+	switch contentType {
 	case "image/jpeg":
 		ext = "jpg"
 	case "image/jpg":
@@ -164,6 +164,8 @@ func (r *KinuResource) Store(file io.ReadSeeker) error {
 		ext = "gif"
 	case "application/pdf":
 		ext = "pdf"
+	case "image/bmp":
+		ext = "bmp"
 	default:
 		return &ErrStore{Message: "unsupported filetype, supported jpg or png or gif or pdf"}
 	}

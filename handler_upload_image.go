@@ -3,8 +3,8 @@ package main
 import (
 	"net/http"
 
-	"github.com/sirupsen/logrus"
 	"github.com/julienschmidt/httprouter"
+	"github.com/sirupsen/logrus"
 	"github.com/tokubai/kinu/logger"
 	"github.com/tokubai/kinu/resource"
 )
@@ -39,6 +39,7 @@ func UploadImageHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Pa
 		} else {
 			RespondInternalServerError(w, err)
 		}
+		return
 	}
 
 	RespondImageUploadSuccessJson(w, imageType, imageId)
