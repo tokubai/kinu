@@ -105,7 +105,8 @@ func (r *BackwardCompatibleResource) Fetch(geo *resizer.Geometry) (*Image, error
 	} else {
 		path, err = r.RecentOriginalFileKey()
 		if err != nil {
-			return image, logger.ErrorDebug(err)
+			// There are cases where there is no original image and only an intermediate image exists.
+			path = r.FilePath("1000")
 		}
 	}
 
