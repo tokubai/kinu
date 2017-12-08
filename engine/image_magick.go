@@ -62,6 +62,10 @@ func (e *ImageMagickEngine) GetImageWidth() int {
 	return int(e.mw.GetImageWidth())
 }
 
+func (e *ImageMagickEngine) RemoveAlpha() error {
+	return e.mw.SetImageAlphaChannel(imagick.ALPHA_CHANNEL_REMOVE)
+}
+
 func (e *ImageMagickEngine) Resize(width int, height int) error {
 	return e.mw.ResizeImage(uint(width), uint(height), imagick.FILTER_LANCZOS, 1.0)
 }

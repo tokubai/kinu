@@ -22,9 +22,10 @@ type Resource interface {
 }
 
 type Image struct {
-	Width  int
-	Height int
-	Body   []byte
+	Width       int
+	Height      int
+	ContentType string
+	Body        []byte
 }
 
 type ErrMove struct {

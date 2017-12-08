@@ -65,6 +65,7 @@ func GetImageHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 	resizeOption := request.Geometry.ToResizeOption()
 	resizeOption.SizeHintHeight = image.Height
 	resizeOption.SizeHintWidth = image.Width
+	resizeOption.SourceContentType = image.ContentType
 	resizeOption.Format = request.Extension
 	resizedImage, err := resizer.Run(image.Body, resizeOption)
 	if err != nil {

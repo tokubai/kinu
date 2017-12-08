@@ -83,6 +83,8 @@ func (r *KinuResource) Fetch(geo *resizer.Geometry) (*Image, error) {
 		logger.ErrorDebug(err)
 	}
 
+	image.ContentType = obj.Metadata["Content-Type"]
+
 	return image, nil
 }
 

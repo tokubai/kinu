@@ -133,7 +133,16 @@ type ResizeOption struct {
 	SizeHintWidth  int
 	SizeHintHeight int
 
-	Format string
+	SourceContentType string
+	Format            string
+}
+
+func (o *ResizeOption) HasAlphaChannel() bool {
+	return o.SourceContentType == "application/pdf" || o.SourceContentType == "image/png" || o.SourceContentType == "image/gif"
+}
+
+func (o *ResizeOption) NeedsRemoveAlpha() bool {
+	return o.Format == "jpeg" || o.Format == "jpg"
 }
 
 func (o *ResizeOption) HasSizeHint() bool {

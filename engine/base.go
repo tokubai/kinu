@@ -19,6 +19,7 @@ type ResizeEngine interface {
 	GetImageHeight() int
 	GetImageWidth() int
 
+	RemoveAlpha() error
 	Resize(width int, height int) error
 	Crop(width int, height int, startX int, startY int) error
 	Generate() ([]byte, error)

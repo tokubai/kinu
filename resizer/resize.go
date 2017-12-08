@@ -75,7 +75,14 @@ func Resize(image []byte, option *ResizeOption) (result *ResizeResult) {
 		}
 	}
 
-	logger.Debug(option.Format)
+	if option.HasAlphaChannel() && option.NeedsRemoveAlpha() {
+		logger.Debug("removing alpha channel")
+		err = engine.RemoveAlpha()
+		if err != nil {
+			return &ResizeResult{err: logger.ErrorDebug(err)}
+		}
+	}
+
 	if len(option.Format) != 0 {
 		engine.SetFormat(option.Format)
 	}
