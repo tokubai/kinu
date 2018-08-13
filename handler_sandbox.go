@@ -17,7 +17,12 @@ func UploadImageToSandboxHandler(w http.ResponseWriter, r *http.Request, ps http
 
 	r.ParseMultipartForm(0)
 
-	imageId := uuid.NewV4().String()
+	uid, err := uuid.NewV4()
+	if err != nil {
+		RespondInternalServerError(w, err)
+		return
+	}
+	imageId := uid.String()
 
 	file, _, err := r.FormFile("image")
 	if err != nil {
