@@ -87,6 +87,8 @@ func Resize(image []byte, option *ResizeOption) (result *ResizeResult) {
 		engine.SetFormat(option.Format)
 	}
 
+	engine.SetCompressionQuality(option.Quality)
+
 	resultImage, err := engine.Generate()
 	return &ResizeResult{image: resultImage, err: err}
 }

@@ -34,6 +34,10 @@ func (e *ImageMagickEngine) SetFormat(format string) {
 	}
 }
 
+func (e *ImageMagickEngine) SetCompressionQuality(quality int) {
+	e.mw.SetImageCompressionQuality(uint(quality))
+}
+
 func (e *ImageMagickEngine) Open() error {
 	e.mw = imagick.NewMagickWand()
 	if e.heightSizeHint > 0 && e.widthSizeHint > 0 {
