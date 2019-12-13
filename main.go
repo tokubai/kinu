@@ -98,7 +98,7 @@ func SetContentType(w http.ResponseWriter, filename string) error {
 	ext := ExtractExtension(filepath.Ext(filename))
 	switch ext {
 	case "jpg", "jpeg":
-		w.Header().Set("Content-Type", "image/jpg")
+		w.Header().Set("Content-Type", "image/jpeg")
 		return nil
 	case "png":
 		w.Header().Set("Content-Type", "image/png")
