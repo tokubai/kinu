@@ -142,7 +142,12 @@ func (s *S3Storage) Put(key string, imageFile io.ReadSeeker, contentType string,
 		putMetadata[k] = aws.String(v)
 	}
 
-	_, err := s.client.PutObject(&s3.PutObjectInput{
+	_, err := imageFile.Seek(0, 0)
+	if err != nil {
+		return logger.ErrorDebug(err)
+	}
+
+	_, err = s.client.PutObject(&s3.PutObjectInput{
 		Bucket:      aws.String(s.bucket),
 		Key:         aws.String(s.BuildKey(key)),
 		ContentType: aws.String(contentType),
