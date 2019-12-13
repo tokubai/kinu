@@ -15,6 +15,7 @@ type ResizeEngine interface {
 
 	SetSizeHint(width, height int)
 	SetFormat(format string)
+	SetCompressionQuality(quality int)
 
 	GetImageHeight() int
 	GetImageWidth() int
