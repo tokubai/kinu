@@ -4,11 +4,9 @@ MAINTAINER Takatoshi Maeda <me@tmd.tw>
 ENV PATH $PATH:/usr/local/go/bin:/usr/local/go/vendor/bin
 
 WORKDIR /tmp
-
-# Install library about several types of images via install & remove libmagickwand-dev.
 RUN env DEBIAN_FRONTEND=noninteractive apt update && \
-    apt install -y libwebp-dev libmagickwand-dev git wget build-essential && \
-    apt-get remove -y libmagickwand-dev && \
+    apt install -y libwebp-dev libjpeg-dev libpng-dev pkg-config \
+                   git wget build-essential && \
     rm -rf /var/lib/apt/lists/* && \
     apt-get clean
 
@@ -30,16 +28,17 @@ ENV KINU_RESIZE_ENGINE ImageMagick
 ENV KINU_STORAGE_TYPE File
 ENV KINU_FILE_DIRECTORY /var/local/kinu
 
+WORKDIR /kinu-build
+COPY . .
 RUN mkdir -p /tmp/golang && \
     wget https://storage.googleapis.com/golang/go${GOLANG_VERSION}.linux-amd64.tar.gz -q -P /tmp/golang && \
     cd /tmp/golang && \
     tar zxf go${GOLANG_VERSION}.linux-amd64.tar.gz && \
     mv ./go /usr/local/go && \
-    rm -rf /tmp/*
-
-WORKDIR /kinu-build
-COPY . .
-RUN go build -o /usr/local/bin/kinu . && \
-    mkdir -p /var/local/kinu
+    rm -rf /tmp/* && \
+    cd /kinu-build && \
+    go build -o /usr/local/bin/kinu . && \
+    mkdir -p /var/local/kinu && \
+    rm -rf /usr/local/go /root/.cache
 
 CMD ["kinu"]
