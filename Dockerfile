@@ -1,14 +1,24 @@
-FROM ubuntu:xenial
+FROM debian:buster-slim
 MAINTAINER Takatoshi Maeda <me@tmd.tw>
 
 ENV PATH $PATH:/usr/local/go/bin:/usr/local/go/vendor/bin
 
-RUN env DEBIAN_FRONTEND=noninteractive apt-get update && \
-    apt-get install -y libwebp-dev libmagickwand-dev git wget && \
+WORKDIR /tmp
+
+# Install library about several types of images via install & remove libmagickwand-dev.
+RUN env DEBIAN_FRONTEND=noninteractive apt update && \
+    apt install -y libwebp-dev libmagickwand-dev git wget build-essential && \
+    apt-get remove -y libmagickwand-dev && \
     rm -rf /var/lib/apt/lists/* && \
     apt-get clean
 
-ENV GOLANG_VERSION 1.9.2
+ENV IMAGE_MAGICK_VERSION=6.9.12-17
+RUN wget https://download.imagemagick.org/ImageMagick/download/releases/ImageMagick-${IMAGE_MAGICK_VERSION}.tar.gz && \
+    tar xvzf ImageMagick-${IMAGE_MAGICK_VERSION}.tar.gz && \
+    cd ImageMagick-${IMAGE_MAGICK_VERSION} && ./configure &&  make  && make install && ldconfig && \
+    rm -rf /tmp/*
+
+ENV GOLANG_VERSION 1.16.5
 ENV GOROOT /usr/local/go
 ENV GOPATH /usr/local/go/vendor
 
@@ -25,13 +35,11 @@ RUN mkdir -p /tmp/golang && \
     cd /tmp/golang && \
     tar zxf go${GOLANG_VERSION}.linux-amd64.tar.gz && \
     mv ./go /usr/local/go && \
-    mkdir /usr/local/go/vendor && \
-    go get -d github.com/tokubai/kinu && \
-    cd /usr/local/go/vendor/src/github.com/tokubai/kinu/ && \
-    git fetch && git checkout refs/tags/${KINU_VERSION} && \
-    go build -o /usr/local/bin/kinu . && \
-    mkdir -p /var/local/kinu && \
-    rm -rf /tmp/golang && \
-    rm -rf /usr/local/go
+    rm -rf /tmp/*
+
+WORKDIR /kinu-build
+COPY . .
+RUN go build -o /usr/local/bin/kinu . && \
+    mkdir -p /var/local/kinu
 
 CMD ["kinu"]

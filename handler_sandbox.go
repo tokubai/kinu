@@ -3,9 +3,9 @@ package main
 import (
 	"net/http"
 
-	"github.com/sirupsen/logrus"
 	"github.com/julienschmidt/httprouter"
 	"github.com/satori/go.uuid"
+	"github.com/sirupsen/logrus"
 	"github.com/tokubai/kinu/logger"
 	"github.com/tokubai/kinu/resource"
 )
@@ -17,11 +17,7 @@ func UploadImageToSandboxHandler(w http.ResponseWriter, r *http.Request, ps http
 
 	r.ParseMultipartForm(0)
 
-	uid, err := uuid.NewV4()
-	if err != nil {
-		RespondInternalServerError(w, err)
-		return
-	}
+	uid := uuid.NewV4()
 	imageId := uid.String()
 
 	file, _, err := r.FormFile("image")
