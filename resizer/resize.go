@@ -6,18 +6,10 @@ import (
 	"github.com/tokubai/kinu/logger"
 )
 
-const (
-	DEFAULT_QUALITY = 70
-)
-
 func Resize(image []byte, option *ResizeOption) (result *ResizeResult) {
 	calculator, err := NewCoodinatesCalculator(option)
 	if err != nil {
 		return &ResizeResult{err: logger.ErrorDebug(err)}
-	}
-
-	if option.Quality == 0 {
-		option.Quality = DEFAULT_QUALITY
 	}
 
 	engine, err := engine.New(image)
@@ -87,7 +79,9 @@ func Resize(image []byte, option *ResizeOption) (result *ResizeResult) {
 		engine.SetFormat(option.Format)
 	}
 
-	engine.SetCompressionQuality(option.Quality)
+	if option.Quality != 0 {
+		engine.SetCompressionQuality(option.Quality)
+	}
 
 	resultImage, err := engine.Generate()
 	return &ResizeResult{image: resultImage, err: err}
