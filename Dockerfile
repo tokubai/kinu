@@ -18,7 +18,7 @@ RUN wget $LIBJPEG_DPKG_URL -O libjpeg-turbo-official_${LIBJPEG_VERSION}_amd64.de
     ln -fs /opt/libjpeg-turbo/lib64/lib* /usr/lib/x86_64-linux-gnu/ && \
     ldconfig
 
-ENV IMAGE_MAGICK_VERSION=6.9.12-28
+ENV IMAGE_MAGICK_VERSION=6.9.12-30
 RUN wget https://download.imagemagick.org/ImageMagick/download/releases/ImageMagick-${IMAGE_MAGICK_VERSION}.tar.gz && \
     tar xvzf ImageMagick-${IMAGE_MAGICK_VERSION}.tar.gz && \
     cd ImageMagick-${IMAGE_MAGICK_VERSION} && ./configure &&  make  && make install && ldconfig && \
