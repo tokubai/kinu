@@ -5,7 +5,7 @@ ENV PATH $PATH:/usr/local/go/bin:/usr/local/go/vendor/bin
 
 WORKDIR /tmp
 RUN env DEBIAN_FRONTEND=noninteractive apt update && \
-    apt install -y libwebp-dev libpng-dev pkg-config \
+    apt install -y libwebp-dev libpng-dev ghostscript pkg-config \
                    git wget build-essential && \
     rm -rf /var/lib/apt/lists/* && \
     apt-get clean
