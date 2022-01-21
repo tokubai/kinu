@@ -45,3 +45,9 @@ _testmain.go
 .envrc
 
 kinu*
+
+*.webp
+*.jpeg
+*.jpg
+*.gif
+*.png

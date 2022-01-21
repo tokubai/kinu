@@ -220,10 +220,6 @@ func ParseGeometry(geo string) (*Geometry, error) {
 		return nil, &ErrInvalidGeometry{Message: "must specify crop width, crop height and assumption width when manual crop mode."}
 	}
 
-	if quality == 0 {
-		quality = DEFAULT_QUALITY
-	}
-
 	return &Geometry{
 		Width: width, Height: height,
 		Quality:            quality,

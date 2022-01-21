@@ -3,9 +3,9 @@ package main
 import (
 	"net/http"
 
-	"github.com/sirupsen/logrus"
 	"github.com/julienschmidt/httprouter"
 	"github.com/satori/go.uuid"
+	"github.com/sirupsen/logrus"
 	"github.com/tokubai/kinu/logger"
 	"github.com/tokubai/kinu/resource"
 )
