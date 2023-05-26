@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/tokubai/kinu/logger"
-	"gopkg.in/gographics/imagick.v2/imagick"
+	"gopkg.in/gographics/imagick.v3/imagick"
 )
 
 type ImageMagickEngine struct {
@@ -71,7 +71,7 @@ func (e *ImageMagickEngine) RemoveAlpha() error {
 }
 
 func (e *ImageMagickEngine) Resize(width int, height int) error {
-	return e.mw.ResizeImage(uint(width), uint(height), imagick.FILTER_LANCZOS, 1.0)
+	return e.mw.ResizeImage(uint(width), uint(height), imagick.FILTER_LANCZOS)
 }
 
 func (e *ImageMagickEngine) Crop(width int, height int, startX int, startY int) error {
