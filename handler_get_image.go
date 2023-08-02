@@ -51,7 +51,7 @@ func GetImageHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 	}
 	logger.TrackResult("fetch image from storage", imageFetchStartTime)
 
-	if request.Geometry.NeedsOriginalImage {
+	if request.Geometry.NeedsOriginalImage && !request.Geometry.NeedsManualCrop {
 		RespondImage(w, image.Body)
 		return
 	}
