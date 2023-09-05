@@ -20,8 +20,8 @@ RUN wget $LIBJPEG_DPKG_URL -O libjpeg-turbo-official_${LIBJPEG_VERSION}_amd64.de
     rm -rf /tmp/*
 
 ENV IMAGE_MAGICK_VERSION=6.9.12-30
-RUN wget https://download.imagemagick.org/ImageMagick/download/releases/ImageMagick-${IMAGE_MAGICK_VERSION}.tar.gz && \
-    tar xvzf ImageMagick-${IMAGE_MAGICK_VERSION}.tar.gz && \
+RUN wget https://download.imagemagick.org/ImageMagick/download/releases/ImageMagick-${IMAGE_MAGICK_VERSION}.tar.xz && \
+    tar xvf ImageMagick-${IMAGE_MAGICK_VERSION}.tar.xz && \
     cd ImageMagick-${IMAGE_MAGICK_VERSION} && ./configure &&  make  && make install && ldconfig && \
     rm -rf /tmp/*
 
@@ -29,7 +29,7 @@ ENV GOLANG_VERSION 1.16.5
 ENV GOROOT /usr/local/go
 ENV GOPATH /usr/local/go/vendor
 
-ENV KINU_VERSION 1.0.0
+ENV KINU_VERSION 1.0.1
 ENV KINU_BIND 0.0.0.0:80
 ENV KINU_LOG_LEVEL info
 ENV KINU_LOG_FORMAT ltsv
