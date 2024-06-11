@@ -4,8 +4,9 @@ MAINTAINER Takatoshi Maeda <me@tmd.tw>
 ENV PATH $PATH:/usr/local/go/bin:/usr/local/go/vendor/bin
 
 WORKDIR /tmp
+# libtiff: To convert EPT format, maybe also dependent to ghostscript.
 RUN env DEBIAN_FRONTEND=noninteractive apt update && \
-    apt install -y libwebp-dev libpng-dev ghostscript pkg-config \
+    apt install -y libwebp-dev libpng-dev libtiff-dev ghostscript pkg-config \
                    git wget build-essential && \
     rm -rf /var/lib/apt/lists/* && \
     apt-get clean
